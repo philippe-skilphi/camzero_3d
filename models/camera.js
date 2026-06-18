@@ -1,28 +1,38 @@
 const {
-  primitives: {
-    cuboid,
-    roundedCuboid,
-    roundedRectangle,
-    cylinder,
-    roundedCylinder,
-    torus,
-  },
-  booleans: { union, subtract },
+  primitives: { roundedCuboid, cylinder },
+  booleans: { subtract, union },
   transforms: { translate, rotate },
-  extrusions: { extrudeLinear },
 } = require("@jscad/modeling");
-const { cylinderElliptic } = require("@jscad/modeling/src/primitives");
+const { ropeJoint } = require("./rope");
+const {
+  cameraHole,
+  cameraHole33mm,
+  cameraHole31_6mm,
+  cameraHole30mm,
+} = require("./camera-hole");
+const {
+  screwMountM2,
+  screwMountM2_5,
+  screwMount1_4,
+  screwMount1_4Body,
+} = require("./screwery");
+const { cameraMount } = require("./camera-mount");
+const { raspberryZeroMount } = require("./raspberryzero-mount");
+const { powerConverterMount } = require("./power-converter-mount");
 
 module.exports.main = () => {
   // Camera case main dimensions
   // We consider xyz as lwh, length width height
 
   const innerLength = 90;
-  const innerWidth = 40;
-  const innerHeight = 40;
+  const innerWidth = 45;
+  const innerHeight = 45;
 
-  const wallThickness = 2;
-  const roundedRadius =2.5 ;
+  const wallThickness = 4;
+  const roundedRadius = 2.5;
+
+  const cameraMountHoleSpacing = 27;
+  const cameraSensorLength = 18;
 
   const outerLength = innerLength + 2 * wallThickness;
   const outerWidth = innerWidth + 2 * wallThickness;
@@ -31,6 +41,8 @@ module.exports.main = () => {
   const centeredWidth = (outerWidth + innerWidth) / 2;
   const centeredLength = (outerLength + innerLength) / 2;
   const centeredHeight = (outerHeight + innerHeight) / 2;
+
+  const ropeDimensions = { centeredLength, centeredWidth, centeredHeight };
 
   function fullBody() {
     const outerCuboid = roundedCuboid({
@@ -47,166 +59,77 @@ module.exports.main = () => {
   }
 
   function lowerBody() {
-    const toRemove =roundedCuboid({
+    const toRemove = roundedCuboid({
       size: [outerLength, outerWidth + 10, outerHeight],
       center: [(outerWidth / 2) * -1, 0, outerHeight / 2],
       roundRadius: roundedRadius,
     });
 
-    return subtract(fullBody(), toRemove);
+    // Camera hole
+    return subtract(fullBody(), toRemove)
   }
 
   function upperBody() {
-    return subtract(fullBody(), lowerBody());
+    // Raspberry Pi 0 mount
+    const raspberryPi0MountPiece = translate(
+      [-12, 0, innerHeight / 2],
+      rotate([0, Math.PI , 0], raspberryZeroMount())
+    );
+    return union(subtract(fullBody(), lowerBody()), raspberryPi0MountPiece);
   }
 
   function lowerBodyWithJoint() {
-    return subtract( lowerBody(), ropeJoint());
+    const cam = translate(
+      [47, 0, 0],
+      rotate([0, Math.PI / 2, 0], cameraHole33mm()),
+    );
+
+    //Camera sensor screw mount
+    const sensorScrewMount = cameraMount({
+      innerLength: innerLength / 2,
+      cameraMountHoleSpacing,
+    });
+
+    // Camera body 1/4 screw mount on the bottom
+    const bottomScrewMount = translate(
+      [18, 0, -outerHeight / 2],
+      screwMount1_4(),
+    );
+    const bottomScrewMountBody = translate(
+      [18, 0, -outerHeight / 2],
+      screwMount1_4Body(),
+    );
+
+    // Gx12 bottom hole.
+    const gx12BottomHole = translate(
+      [-5, 0, -outerHeight / 2],
+      cylinder({ radius: 6, height: 10, segments: 128 }),
+    );
+
+    // Power converter mount
+    const powerConverterMountPiece = translate(
+      [-5, 14, -innerHeight / 2],
+      rotate([ 0,0, Math.PI / 2], powerConverterMount())
+    );
+
+    // Camera body 1/4 screw mount on the top
+    return union(
+      subtract(lowerBody(), ropeJoint(ropeDimensions), cam, bottomScrewMountBody, gx12BottomHole),
+      sensorScrewMount,
+      bottomScrewMount,
+      powerConverterMountPiece,
+    );
   }
 
   function upperBodyWithJoint() {
-    return subtract(upperBody(), ropeJoint());
-  }
-
-  /**
-   *
-   * @param {*} width
-   * @param {} orientation
-   * @returns
-   */
-  function ropeJointSegment(width, orientation) {
-    // orientation should be 'x', 'y' or 'z'
-    // if orientation is 'x', the cylinder should be parallel to the x-axis
-    // if orientation is 'y', the cylinder should be parallel to the y-axis
-    // if orientation is 'z', the cylinder should be parallel to the z-axis
-
-    const cyl = cylinder({ radius: 0.5, height: width });
-
-    if (orientation === "x") {
-      return rotate([Math.PI / 2, 0, 0], cyl);
-    } else if (orientation === "y") {
-      return rotate([0, Math.PI / 2, 0], cyl);
-    } else if (orientation === "z") {
-      return rotate([0, 0, Math.PI / 2], cyl);
-    } else {
-      throw new Error("Invalid orientation");
-    }
-  }
-
-  /**
-   *
-   * @param {*} orientation
-   * @returns
-   */
-  function ropeJointAngle(x = 0, y = 0, z = 0) {
-    // orientation should be 'x', 'y' or 'z'
-    // if orientation is 'x', the cylinder should be parallel to the x-axis
-    // if orientation is 'y', the cylinder should be parallel to the y-axis
-    // if orientation is 'z', the cylinder should be parallel to the z-axis
-    const angleBody = torus({ innerRadius: 0.5, outerRadius: 2.5 });
-    // Remove cubes to keep only a 90 degree angle
-    const toRemove = [
-      translate([-2, 0, 0], cuboid({ size: [4, 8, 6] })),
-      translate([-3, -3, 0], cuboid({ size: [14, 6, 6] })),
-    ];
-
-    const angle = subtract(angleBody, ...toRemove);
-    // debugger;
-    return rotate([x, y, z], angle);
-  }
-
-  function ropeJoint() {
-    const angleLength = 1.5;                                                                                                     ;
-    const xSegmentLength = (centeredLength * 3) / 4;
-    const xSegmentLengthMinusAngles = xSegmentLength - 2 * angleLength;
-    ySegmentLengthMinusAngles = centeredWidth - 4;
-    zSegmentLengthMinusAngles = centeredHeight / 2 - 2 * angleLength - 2 ;
-
-    const angle = ropeJointAngle(0, 0, 0);
-    return rotate(
-      [0, 0, Math.PI / 2],
-      translate(
-        [0, 9.5, 0],
-        union(
-          translate(
-            [centeredWidth / 2, 0.75, 0],
-            ropeJointSegment(xSegmentLengthMinusAngles, "x"),
-          ),
-          translate(
-            [centeredWidth / 2 - 2.5, xSegmentLength / 2 - 0.75, 0],
-            ropeJointAngle(0, 0, 0),
-          ),
-          translate(
-            [0, xSegmentLength / 2 + 1.75, 0], 
-            ropeJointSegment(ySegmentLengthMinusAngles, "y"),
-          ),
-          translate(
-            [
-              -centeredWidth / 2 + 2.5,
-              xSegmentLength / 2 - 0.75,
-              0,
-            ],
-            ropeJointAngle(0, Math.PI, 0),
-          ),
-          translate(
-            [-centeredWidth / 2, 0.75, 0],
-            ropeJointSegment(xSegmentLengthMinusAngles, "x"),
-          ),
-          translate(
-            [-centeredWidth / 2, -xSegmentLength / 2 + angleLength + 1, angleLength + 1],
-            ropeJointAngle(0, Math.PI / 2, Math.PI),
-          ),
-          translate(
-            [
-              -centeredWidth / 2,
-              -xSegmentLength / 2,
-              zSegmentLengthMinusAngles / 2 + angleLength + 1,
-            ],
-            ropeJointSegment(zSegmentLengthMinusAngles, "z"),
-          ),
-          translate(
-            [
-              -centeredWidth / 2 + angleLength + 1,
-              -xSegmentLength / 2,
-              zSegmentLengthMinusAngles + angleLength + 1,
-            ],
-            ropeJointAngle(0, Math.PI * 1.5, Math.PI / 2),
-          ),
-          translate(
-            [
-              0,
-              -xSegmentLength / 2,
-              zSegmentLengthMinusAngles + angleLength * 2 + 2,
-            ],
-            ropeJointSegment(ySegmentLengthMinusAngles, "y"),
-          ),
-          translate(
-            [
-              centeredWidth / 2 - angleLength - 1,
-              -xSegmentLength / 2,
-              zSegmentLengthMinusAngles + angleLength + 1,
-            ],
-            ropeJointAngle(Math.PI, Math.PI * 1.5, Math.PI / 2),
-          ),
-          translate(
-            [
-              centeredWidth / 2,
-              -xSegmentLength / 2,
-              zSegmentLengthMinusAngles / 2 + angleLength + 1,
-            ],
-            ropeJointSegment(zSegmentLengthMinusAngles, "z"),
-          ),
-          translate(
-            [centeredWidth / 2, -xSegmentLength / 2 + angleLength + 1, angleLength + 1],
-            ropeJointAngle(0, Math.PI / 2, Math.PI),
-          ),
-        ),
-      ),
-    );
+    return subtract(upperBody(), ropeJoint(ropeDimensions));
   }
 
   // return upperBodyWithJoint();
   return lowerBodyWithJoint();
-  //return ropeJointAngle(0, 0, 0);
-   //return ropeJoint();
+  // return ropeJointAngle(0, 0, 0);
+  // return ropeJoint(ropeDimensions);
+  // return cameraHole();
+  //return screwMount1_4();
+  // return raspberryZeroMount();
 };
