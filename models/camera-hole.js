@@ -32,7 +32,7 @@ function cameraHole({
   outerRadius = 16.5,
   innerRadius = 15.4,
   height = 2,
-}) {
+} = {}) {
   const cyl1 = cylinder({ radius: outerRadius, height: height, segments: 128 });
   const cyl2 = translate([0, 0, height], cylinder({ radius: innerRadius, height: height, segments: 128 }));
 

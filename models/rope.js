@@ -3,6 +3,7 @@ const {
   booleans: { union, subtract },
   transforms: { translate, rotate },
 } = require("@jscad/modeling");
+const { centeredLength, centeredWidth, centeredHeight } = require("./constants");
 
 /**
  * @param {*} width
@@ -44,9 +45,9 @@ function ropeJointAngle(x = 0, y = 0, z = 0) {
   return rotate([x, y, z], angle);
 }
 
-function ropeJoint({ centeredLength, centeredWidth, centeredHeight }) {
+function ropeJoint() {
   const angleLength = 1.5;
-  const xSegmentLength = (centeredLength * 3) / 4 - 6;
+  const xSegmentLength = (centeredLength * 3) / 4;
   const xSegmentLengthMinusAngles = xSegmentLength - 2 * angleLength;
   const ySegmentLengthMinusAngles = centeredWidth - 4;
   const zSegmentLengthMinusAngles = centeredHeight / 2 - 2 * angleLength - 2;
@@ -57,7 +58,7 @@ function ropeJoint({ centeredLength, centeredWidth, centeredHeight }) {
       [0, 9.5, 0],
       union(
         translate(
-          [centeredWidth / 2, 0.75, 0],
+          [centeredWidth / 2 , 0.75, 0],
           ropeJointSegment(xSegmentLengthMinusAngles, "x"),
         ),
         translate(

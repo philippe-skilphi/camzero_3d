@@ -42,14 +42,14 @@ module.exports.main = () => {
     cylinder({ radius: 2, height: outerHeight + 6, segments: 32 })
   );
 
-  const screwHoles = [
+  const screwHoleHalfCirculars = [
     hole( 60,  45),
     hole(-60,  45),
     hole(-60, -45),
     hole( 60, -45),
   ];
 
-  const baseWithHoles = subtract(base, ...screwHoles);
+  const baseWithHoles = subtract(base, ...screwHoleHalfCirculars);
 
   // --- 4x M2.5 hex spacer pockets for Pi mounting (Loctited in place) ---
   // 5mm across flats + 0.15mm tolerance; circumradius for 6-segment cylinder

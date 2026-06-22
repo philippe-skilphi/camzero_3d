@@ -4,8 +4,9 @@ const {
 } = require("@jscad/modeling");
 
 const { screwMountM2 } = require("./screwery");
+const { cameraMountHoleSpacing } = require("./constants");
 
-function cameraMount({innerLength, cameraMountHoleSpacing, totalHeight = 18}) {
+function cameraMount({ innerLength, totalHeight = 18 } = {}) {
   const additionalHeight = totalHeight - 4;
   return union(
     translate(

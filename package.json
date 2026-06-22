@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "watch": "node watch.js",
-    "export:stl": "npx @jscad/cli models/backplate.js -o models/backplate.stl"
+    "export:stl": "npx @jscad/cli models/camera.js -o stl/camera.stl"
   },
   "keywords": [],
   "author": "",

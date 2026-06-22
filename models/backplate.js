@@ -10,7 +10,7 @@ module.exports.main = () => {
 
 
   const raspberryPLate = () => {
-    const screwHoleRadius = 1.25;
+    const screwHoleHalfCircularRadius = 1.25;
     const widthBetweenHoles = 24;
     const lengthBetweenHoles = 58;
     const thickness = 3;
@@ -24,10 +24,10 @@ module.exports.main = () => {
     });
   
     const supportHoles = [
-      translate([widthBetweenHoles / 2, lengthBetweenHoles / 2], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([widthBetweenHoles / 2, -lengthBetweenHoles / 2], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([-widthBetweenHoles / 2, lengthBetweenHoles / 2], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([-widthBetweenHoles / 2, -lengthBetweenHoles / 2], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
+      translate([widthBetweenHoles / 2, lengthBetweenHoles / 2], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([widthBetweenHoles / 2, -lengthBetweenHoles / 2], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([-widthBetweenHoles / 2, lengthBetweenHoles / 2], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([-widthBetweenHoles / 2, -lengthBetweenHoles / 2], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
     ];
   
     return translate([0, 10, 1.2], rotate([0, 0, Math.PI / 2], subtract(support, ...supportHoles)));
@@ -37,7 +37,7 @@ module.exports.main = () => {
     const thickness = 1.2;
     const width = 90;
     const length = 75;  
-    const screwHoleRadius = 1;
+    const screwHoleHalfCircularRadius = 1;
 
     const support = roundedCuboid({
       center: [0, 0, 0],
@@ -57,7 +57,7 @@ module.exports.main = () => {
   const cameraPlate = () => {
     const lengthBetweenHoles = 34;
     const thickness = 3;
-    const screwHoleRadius = 1;
+    const screwHoleHalfCircularRadius = 1;
     const extrusionSize = 12;
     
 
@@ -68,10 +68,10 @@ module.exports.main = () => {
     });
 
     const cameraHoles = [
-      translate([lengthBetweenHoles / 2, lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([lengthBetweenHoles / 2, -lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([-lengthBetweenHoles / 2, lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
-      translate([-lengthBetweenHoles / 2, -lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleRadius, height: thickness, segments: 32 })),
+      translate([lengthBetweenHoles / 2, lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([lengthBetweenHoles / 2, -lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([-lengthBetweenHoles / 2, lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
+      translate([-lengthBetweenHoles / 2, -lengthBetweenHoles / 2, 0], cylinder({ radius: screwHoleHalfCircularRadius, height: thickness, segments: 32 })),
     ];
 
     // const extrusionCuboids = [
