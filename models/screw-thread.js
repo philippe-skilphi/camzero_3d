@@ -14,7 +14,7 @@ const DEFAULTS = {
   depth: 1.2,
   turns: 3.5,
   flank: 0.25,
-  clearance: 0.4,
+  clearance: 0.2,
   segmentsPerRotation: 48,
   flangeHeight: 6,
   flangeRadius: 11,
