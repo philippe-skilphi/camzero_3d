@@ -44,7 +44,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       center: [
         innerLength - wallThickness - 5,
         -cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness,
+        -innerHeight / 2 + wallThickness -1,
       ],
     }),
     cuboid({
@@ -56,7 +56,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       center: [
         innerLength - wallThickness - 5,
         cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness,
+        -innerHeight / 2 + wallThickness -1,
       ],
     }),
     subtract(

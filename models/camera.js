@@ -94,7 +94,7 @@ module.exports.main = () => {
 
     // Power converter mount
     const powerConverterMountPiece = translate(
-      [-28, 14, -innerHeight / 2],
+      [-2, -20, -innerHeight / 2],
       rotate([0, 0, Math.PI / 2], powerConverterMount()),
     );
     body = union(body, powerConverterMountPiece);
@@ -120,22 +120,7 @@ module.exports.main = () => {
     );
     body = union(body, raspberryPi0MountPiece);
 
-    // // Usb screw neck
-    // const neck = translate(
-    //   [usbHoleRelativeX, 0, -centeredHeight / 2],
-    //   rotate(
-    //     [Math.PI, 0, 0],
-    //     bottleNeck({
-    //       majorRadius: usbHoleScrewOuterRadius,
-    //       pitch: 2,
-    //       clearance: 0.5,
-    //       innerBoreRadius: usbHoleScrewInnerRadius,
-    //     }),
-    //   ),
-    // );
-
     const innerCylinder = innerScrewCylinder({majorRadius: usbHoleScrewOuterRadius,});
-
     body = subtract(
       body,
       translate([usbHoleRelativeX, -12, -outerHeight / 2], innerCylinder),
@@ -287,7 +272,7 @@ module.exports.main = () => {
   // return cameraHole();
   // return screwMount1_4();
   // return raspberryZeroMount();
-  // return lowerBodyWithJoint();
+  return lowerBodyWithJoint();
   // return union(lowerBodyWithJoint(), upperBodyWithJoint());
   // return upperBodyWithJoint();
   // return upperBodyWithCap();
