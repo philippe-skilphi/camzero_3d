@@ -11,8 +11,8 @@ const roundedRadius = 5;
 const cameraMountHoleSpacing = 27;
 
 const usbHoleRelativeX = -27;
-const usbHoleScrewOuterRadius = 13;
-const usbHoleScrewInnerRadius = 11.5;
+const usbHoleScrewOuterRadius = 13.5;
+const usbHoleScrewInnerRadius = 12.5;
 
 const outerLength = innerLength + 2 * wallThickness;
 const outerWidth = innerWidth + 2 * wallThickness;
@@ -34,8 +34,8 @@ const cameraCapOuterWidth = outerWidth + 2 * (capDistanceToBody + capThickness);
 const cameraCapInnerWidth = cameraCapOuterWidth - 2 * capThickness;
 const cameraCapHeight = outerHeight / 2;
 
-const usbPortLength = 17.6;
-const usbPortWidth = 9;
+const usbPortLength = 19;
+const usbPortWidth = 10;
 const usbEnclosureHeight = 6;
 const usbEnclosureInnerRadius = 12;
 

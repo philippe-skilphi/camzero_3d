@@ -21,7 +21,13 @@ const { Hexagon } = require("./utils");
 const { cameraMount } = require("./camera-mount");
 const { raspberryZeroMount } = require("./raspberryzero-mount");
 const { powerConverterMount } = require("./power-converter-mount");
-const { innerScrewCylinder, innerCylinderHeight, innerScrew, fullPiece, bottleCap } = require("./screw-thread");
+const {
+  innerScrewCylinder,
+  innerCylinderHeight,
+  innerScrew,
+  fullPiece,
+  bottleCap,
+} = require("./screw-thread");
 const { cameraCap } = require("./camera-cap");
 
 const {
@@ -36,10 +42,11 @@ const {
   outerWidth,
   outerHeight,
   centeredLength,
-  centeredHeight,
   capDistanceToBody,
   capThickness,
   cameraCapHeight,
+  usbPortLength,
+  usbPortWidth,
 } = require("./constants");
 
 module.exports.main = () => {
@@ -96,11 +103,11 @@ module.exports.main = () => {
 
     // Gx12 hex hole for nut
     const gx12HexHole = translate(
-      [-12, 14, -1 -innerHeight / 2],
-      Hexagon(15, 1)
-    )
+      [-12, 14, -1 - innerHeight / 2],
+      Hexagon(15, 1),
+    );
     body = subtract(body, gx12HexHole);
-    
+
     // Power converter mount
     const powerConverterMountPiece = translate(
       [-2, -20, -innerHeight / 2],
@@ -131,7 +138,9 @@ module.exports.main = () => {
 
     // Usb hole with screw thread
     // Main cylinder subtract
-    const innerCylinder = innerScrewCylinder({majorRadius: usbHoleScrewOuterRadius,});
+    const innerCylinder = innerScrewCylinder({
+      majorRadius: usbHoleScrewOuterRadius,
+    });
     body = subtract(
       body,
       translate([usbHoleRelativeX, -12, -outerHeight / 2], innerCylinder),
@@ -146,7 +155,10 @@ module.exports.main = () => {
 
     body = union(
       body,
-      translate([usbHoleRelativeX, -12, -outerHeight / 2], innerScrewThreadHole),
+      translate(
+        [usbHoleRelativeX, -12, -outerHeight / 2],
+        innerScrewThreadHole,
+      ),
     );
 
     console.log(usbHoleScrewInnerRadius);
@@ -170,7 +182,7 @@ module.exports.main = () => {
       rotate(
         [0, 0, 0],
         roundedCuboid({
-          size: [17.6, 9, 6],
+          size: [usbPortLength, usbPortWidth, 6],
           roundRadius: 1,
         }),
       ),
@@ -265,23 +277,47 @@ module.exports.main = () => {
   }
 
   function printable() {
-    const capPiece = bottleCap();
+    const capPiece = bottleCap({
+      majorRadius: usbHoleScrewOuterRadius - 0.4,
+      flangeRadius: 15,
+      innerBoreRadius: usbHoleScrewOuterRadius - 3,
+    });
     return union(
-      translate(
-        [0, -innerWidth * 2, outerHeight / 2],
-        lowerBodyWithJoint(),
-      ),
+      translate([0, -innerWidth * 2, outerHeight / 2], lowerBodyWithJoint()),
       translate(
         [0, innerWidth * 2, outerHeight / 2],
         rotate([0, Math.PI, Math.PI], upperBodyWithJoint()),
       ),
-      translate([50, 0, 0], rotate([0 , 0, 0], capPiece)),
+      translate([50, 0, 0], rotate([0, 0, 0], capPiece)),
       translate(
-        [-50, 0, cameraCapHeight-1],
+        [-50, 0, cameraCapHeight - 1],
         rotate([0, Math.PI, Math.PI], cameraCap()),
       ),
     );
   }
+
+  function thread2Parts() {
+    const inner = innerScrew({
+      gripRibs: false,
+      gripRibCount: 0,
+      majorRadius: usbHoleScrewOuterRadius,
+    });
+    const outer = bottleCap({
+      majorRadius: usbHoleScrewOuterRadius - 0.4,
+      flangeRadius: 15,
+      innerBoreRadius: usbHoleScrewOuterRadius - 3,
+    });
+
+    return subtract(
+      union(
+        translate([0, 0, 6], rotate([0, 0, 0], inner)),
+        translate([0, 0, 0], outer),
+      ),
+      cuboid({ size: [100, 100, 100], center: [0, 50, 0] }),
+    );
+  }
+
+  // return thread2Parts();
 
   // return bottleCap({
   //   majorRadius: usbHoleScrewOuterRadius,
