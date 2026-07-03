@@ -88,11 +88,11 @@ module.exports.main = () => {
     );
     body = subtract(body, cam);
 
-    // //Camera sensor screw mount
-    // const sensorScrewMount = cameraMount({
-    //   innerLength: innerLength / 2,
-    // });
-    // body = union(body, sensorScrewMount);
+    //Camera sensor screw mount
+    const sensorScrewMount = cameraMount({
+      innerLength: innerLength / 2, totalHeight: 13
+    });
+    body = union(body, sensorScrewMount);
 
     // Gx12 bottom hole.
     const gx12BottomHole = translate(
