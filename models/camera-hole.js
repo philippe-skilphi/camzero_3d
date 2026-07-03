@@ -35,7 +35,7 @@ function cameraHole35mm() {
   return rotate(
     [0, Math.PI, 0],
     cameraHole({
-      outerRadius: 17.5,
+      outerRadius: 18,
       innerRadius: 14.3,
       height: 2,
     }),

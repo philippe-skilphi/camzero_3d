@@ -16,6 +16,8 @@ const {
   screwMountM2_5,
 } = require("./screwery");
 
+const { Hexagon } = require("./utils");
+
 const { cameraMount } = require("./camera-mount");
 const { raspberryZeroMount } = require("./raspberryzero-mount");
 const { powerConverterMount } = require("./power-converter-mount");
@@ -79,11 +81,11 @@ module.exports.main = () => {
     );
     body = subtract(body, cam);
 
-    //Camera sensor screw mount
-    const sensorScrewMount = cameraMount({
-      innerLength: innerLength / 2,
-    });
-    body = union(body, sensorScrewMount);
+    // //Camera sensor screw mount
+    // const sensorScrewMount = cameraMount({
+    //   innerLength: innerLength / 2,
+    // });
+    // body = union(body, sensorScrewMount);
 
     // Gx12 bottom hole.
     const gx12BottomHole = translate(
@@ -92,6 +94,13 @@ module.exports.main = () => {
     );
     body = subtract(body, gx12BottomHole);
 
+    // Gx12 hex hole for nut
+    const gx12HexHole = translate(
+      [-12, 14, -1 -innerHeight / 2],
+      Hexagon(15, 1)
+    )
+    body = subtract(body, gx12HexHole);
+    
     // Power converter mount
     const powerConverterMountPiece = translate(
       [-2, -20, -innerHeight / 2],
@@ -147,7 +156,6 @@ module.exports.main = () => {
       torus({
         innerRadius: 0.5,
         outerRadius: usbHoleScrewInnerRadius + 0.5,
-        height: 1,
         innerSegments: 128,
         outerSegments: 128,
       }),

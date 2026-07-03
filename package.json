@@ -16,6 +16,7 @@
     "@jscad/modeling": "^2.12.7"
   },
   "devDependencies": {
-    "@jscad/cli": "^2.3.7"
+    "@jscad/cli": "^2.3.7",
+    "@types/node": "^26.1.0"
   }
 }

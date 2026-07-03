@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "checkJs": true,
+    "allowJs": true,
+    "noEmit": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "resolveJsonModule": true,
+    "types": ["node"]
+  },
+  "include": ["models/**/*.js", "build.js", "watch.js"],
+  "exclude": ["node_modules", "jscad", "stl"]
+}
