@@ -1,12 +1,12 @@
 const {
-  primitives: { roundedCuboid, cylinder, cuboid },
+  primitives: { roundedCuboid, cylinder, cuboid, torus },
   booleans: { subtract, union },
   transforms: { translate, rotate },
 } = require("@jscad/modeling");
 
 const { ropeJoint } = require("./rope");
 
-const { cameraHole31_6mm } = require("./camera-hole");
+const { cameraHole35mm } = require("./camera-hole");
 
 const {
   screwMount1_4,
@@ -75,7 +75,7 @@ module.exports.main = () => {
     // Camera sensor hole
     const cam = translate(
       [47, 0, 0],
-      rotate([0, Math.PI / 2, 0], cameraHole31_6mm()),
+      rotate([0, Math.PI / 2, 0], cameraHole35mm()),
     );
     body = subtract(body, cam);
 
@@ -120,12 +120,15 @@ module.exports.main = () => {
     );
     body = union(body, raspberryPi0MountPiece);
 
+    // Usb hole with screw thread
+    // Main cylinder subtract
     const innerCylinder = innerScrewCylinder({majorRadius: usbHoleScrewOuterRadius,});
     body = subtract(
       body,
       translate([usbHoleRelativeX, -12, -outerHeight / 2], innerCylinder),
     );
 
+    // Inner screw thread
     const innerScrewThreadHole = innerScrew({
       gripRibs: false,
       gripRibCount: 0,
@@ -136,6 +139,22 @@ module.exports.main = () => {
       body,
       translate([usbHoleRelativeX, -12, -outerHeight / 2], innerScrewThreadHole),
     );
+
+    console.log(usbHoleScrewInnerRadius);
+    // subtract torus shape for 1mm joint at the bottom.
+    const torusShape = translate(
+      [usbHoleRelativeX, -12, 10 - outerHeight / 2],
+      torus({
+        innerRadius: 0.5,
+        outerRadius: usbHoleScrewInnerRadius + 0.5,
+        height: 1,
+        innerSegments: 128,
+        outerSegments: 128,
+      }),
+    );
+
+    // return torusShape;
+    body = subtract(body, torusShape);
 
     // Usb hole 17.6 by 9
     const usbHole = translate(
@@ -272,7 +291,7 @@ module.exports.main = () => {
   // return cameraHole();
   // return screwMount1_4();
   // return raspberryZeroMount();
-  return lowerBodyWithJoint();
+  // return lowerBodyWithJoint();
   // return union(lowerBodyWithJoint(), upperBodyWithJoint());
   // return upperBodyWithJoint();
   // return upperBodyWithCap();

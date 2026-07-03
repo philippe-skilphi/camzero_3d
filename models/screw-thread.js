@@ -192,9 +192,7 @@ function bottleCap(opts = {}) {
   const threadOverlap = pitch / 2;
   const coreHeight = leadInHeight + threadHeight;
 
-  console.log(
-    `innerBoreRadius: ${innerBoreRadius}, minorRadius: ${minorRadius}, majorRadius: ${majorRadius}, depth: ${depth}, pitch: ${pitch}, turns: ${turns}, flank: ${flank}, segmentsPerRotation: ${segmentsPerRotation}`,
-  );
+
 
   const flange = translate(
     [0, 0, flangeHeight / 2],

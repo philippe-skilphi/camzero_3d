@@ -28,13 +28,30 @@ function cameraHole30mm() {
   });
 }
 
+// hole for insta 360 X3 lens protection
+// will be glued from outside.
+// So we need to 360 it on Y axis.
+function cameraHole35mm() {
+  return rotate(
+    [0, Math.PI, 0],
+    cameraHole({
+      outerRadius: 17.5,
+      innerRadius: 14.3,
+      height: 2,
+    }),
+  );
+}
+
 function cameraHole({
   outerRadius = 16.5,
   innerRadius = 15.4,
   height = 2,
 } = {}) {
   const cyl1 = cylinder({ radius: outerRadius, height: height, segments: 128 });
-  const cyl2 = translate([0, 0, height], cylinder({ radius: innerRadius, height: height, segments: 128 }));
+  const cyl2 = translate(
+    [0, 0, height],
+    cylinder({ radius: innerRadius, height: height, segments: 128 }),
+  );
 
   // We decide no joint on that one for now....
   // const joint = torus({ innerRadius: 0.5, outerRadius: 2.5 });
@@ -44,4 +61,10 @@ function cameraHole({
   // return translate([46, 0, 0], rotate([0, Math.PI / 2, 0], union(cyl1, cyl2)));
 }
 
-module.exports = { cameraHole, cameraHole33mm, cameraHole31_6mm, cameraHole30mm };
+module.exports = {
+  cameraHole,
+  cameraHole33mm,
+  cameraHole31_6mm,
+  cameraHole30mm,
+  cameraHole35mm,
+};
