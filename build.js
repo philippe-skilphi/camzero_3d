@@ -20,4 +20,4 @@ const jscadOutput = path.join(jscadDir, `${base}.jscad.json`);
 const stlOutput = path.join(stlDir, `${base}.stl`);
 
 execSync(`npx @jscad/cli "${input}" -o "${jscadOutput}"`, { stdio: "inherit" });
-execSync(`npx @jscad/cli "${input}" -o "${stlOutput}"`, { stdio: "inherit" });
+// execSync(`npx @jscad/cli "${input}" -o "${stlOutput}"`, { stdio: "inherit" });

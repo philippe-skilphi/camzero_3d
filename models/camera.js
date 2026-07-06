@@ -220,13 +220,15 @@ module.exports.main = () => {
 
   function upperBodyWithCap() {
     return union(
-      upperBodyWithJoint(),
+      upperBody(),
       translate([0, 0, capDistanceToBody + capThickness], cameraCap()),
     );
   }
 
-  function upperBodyWithJoint() {
-    let body = subtract(upperBody(), ropeJoint());
+  function upperBody() {
+
+    let body = subtract(fullBody(), lowerBody());
+    // body = subtract(body, ropeJoint());
 
     // Case screw mounts on the top side, face down to limit water ingress.
     const caseScrewMounts = union(
@@ -289,7 +291,7 @@ module.exports.main = () => {
       translate([0, -innerWidth * 2, outerHeight / 2], lowerBodyWithJoint()),
       translate(
         [0, innerWidth * 2, outerHeight / 2],
-        rotate([0, Math.PI, Math.PI], upperBodyWithJoint()),
+        rotate([0, Math.PI, Math.PI], upperBody()),
       ),
       translate([50, 0, 0], rotate([0, 0, 0], capPiece)),
       translate(
@@ -338,8 +340,8 @@ module.exports.main = () => {
   // return cameraHole();
   // return screwMount1_4();
   // return raspberryZeroMount();
-  // return lowerBodyWithJoint();
-  return union(lowerBodyWithJoint(), upperBodyWithJoint());
+  return translate([0, 0, 20], lowerBodyWithJoint());
+  // return union(lowerBodyWithJoint(), upperBodyWithJoint());
   // return upperBodyWithJoint();
   // return upperBodyWithCap();
   return printable();

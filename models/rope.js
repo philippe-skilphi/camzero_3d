@@ -55,7 +55,7 @@ function ropeJoint() {
   return rotate(
     [0, 0, Math.PI / 2],
     translate(
-      [0, 9.5, 0],
+      [0.2, 9.5, -0.2],
       union(
         translate(
           [centeredWidth / 2 , 0.75, 0],
