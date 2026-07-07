@@ -340,7 +340,7 @@ module.exports.main = () => {
   // return cameraHole();
   // return screwMount1_4();
   // return raspberryZeroMount();
-  return translate([0, 0, 20], lowerBodyWithJoint());
+  // return translate([0, 0, 20], lowerBodyWithJoint());
   // return union(lowerBodyWithJoint(), upperBodyWithJoint());
   // return upperBodyWithJoint();
   // return upperBodyWithCap();
