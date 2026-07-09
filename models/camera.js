@@ -361,7 +361,7 @@ module.exports.main = () => {
   // return rotate([0, Math.PI / 2, 0], fullPiece());
   // return cameraCap();
   // return upperBody();
-  return translate([0, 0, 25], lowerBodyWithJoint());
+  // return translate([0, 0, 25], lowerBodyWithJoint());
   // console.log(measureArea(test));
   // return ropeJoint();
   // return cameraHole();
@@ -371,5 +371,5 @@ module.exports.main = () => {
   // return union(lowerBodyWithJoint(), upperBody());
   // return upperBody();
   // return upperBodyWithCap();
-  // return printable();
+  return printable();
 };
