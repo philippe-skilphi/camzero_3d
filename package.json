@@ -6,7 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "watch": "node watch.js",
-    "export:stl": "npx @jscad/cli models/camera.js -o stl/camera.stl"
+    "export:stl": "SEG=128 npx @jscad/cli models/camera.js -o stl/camera.stl"
   },
   "keywords": [],
   "author": "",

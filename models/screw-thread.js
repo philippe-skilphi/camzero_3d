@@ -8,6 +8,8 @@ const {
   },
 } = require("@jscad/modeling");
 
+const { segments, threadSegmentsPerRotation } = require("./constants");
+
 const DEFAULTS = {
   majorRadius: 9,
   pitch: 3,
@@ -15,7 +17,7 @@ const DEFAULTS = {
   turns: 3.5,
   flank: 0.25,
   clearance: 0.2,
-  segmentsPerRotation: 48,
+  segmentsPerRotation: threadSegmentsPerRotation,
   flangeHeight: 6,
   flangeRadius: 11,
   wall: 2,
@@ -25,7 +27,7 @@ const DEFAULTS = {
   innerBoreRadius: 7,
 };
 
-const CYLINDER_SEGMENTS = 128;
+const CYLINDER_SEGMENTS = segments;
 
 function resolveParams(opts = {}) {
   const params = { ...DEFAULTS, ...opts };
@@ -63,7 +65,7 @@ function helicalThread({
   pitch,
   turns,
   flank = 0.25,
-  segmentsPerRotation = 48,
+  segmentsPerRotation = threadSegmentsPerRotation,
   startAngle = 0,
 } = {}) {
   return extrudeHelical(

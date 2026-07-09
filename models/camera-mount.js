@@ -6,6 +6,7 @@ const {
 
 const { screwMountM2 } = require("./screwery");
 const {
+  segments,
   cameraMountHoleSpacing,
   wallThickness,
   innerHeight,
@@ -17,6 +18,9 @@ const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
 function cameraMount({ innerLength, totalHeight = 18 } = {}) {
   const additionalHeight = totalHeight - 4;
+
+  console.log([innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2]);
+
   let body = union(
     translate(
       [innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2],
@@ -61,36 +65,36 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
     }),
     subtract(
       translate(
-        [3 + totalHeight + innerLength / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, 0],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 18,
-            height: totalHeight - 2,
+            height: totalHeight -2,
             center: [0, 0, 0],
-            segments: 128,
+            segments,
           }),
         ),
       ),
       translate(
-        [3 + totalHeight + innerLength / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, 0],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 15.6,
-            height: totalHeight - 2,
+            height: totalHeight- 2,
             center: [0, 0, 0],
-            segments: 128,
+            segments,
           }),
         ),
       ),
       cuboid({
-        size: [totalHeight - 2, cameraMountHoleSpacing + 10, 8],
-        center: [3 + totalHeight + innerLength / 2, 0, -cameraMountHoleSpacing / 2 - 2],
+        size: [totalHeight, cameraMountHoleSpacing + 10, 8],
+        center: [innerLength - totalHeight / 2, 0, -cameraMountHoleSpacing / 2 - 2],
       }),
       cuboid({
-        size: [totalHeight - 2, cameraMountHoleSpacing + 10, 8],
-        center: [3 + totalHeight + innerLength / 2, 0, cameraMountHoleSpacing / 2 + 2],
+        size: [totalHeight, cameraMountHoleSpacing + 10, 8],
+        center: [innerLength - totalHeight / 2, 0, cameraMountHoleSpacing / 2 + 2],
       }),
     ),
   );
