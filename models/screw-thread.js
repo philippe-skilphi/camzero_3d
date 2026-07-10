@@ -94,7 +94,7 @@ function leadInChamfer({
 
   // Only taper the thread annulus; do not cut into the core or flange top.
   const outer = cylinder({
-    radius: majorRadius + 0.01,
+    radius: majorRadius + 10,
     height: height,
     segments,
   });
@@ -192,9 +192,7 @@ function bottleCap(opts = {}) {
   }
 
   const threadOverlap = pitch / 2;
-  const coreHeight = leadInHeight + threadHeight;
-
-
+  const coreHeight = threadHeight;
 
   const flange = translate(
     [0, 0, flangeHeight / 2],
@@ -206,7 +204,7 @@ function bottleCap(opts = {}) {
   );
 
   const core = translate(
-    [0, 0, 2 + coreHeight / 2],
+    [0, 0, flangeHeight + coreHeight / 2],
     cylinder({
       radius: minorRadius,
       height: coreHeight,
@@ -227,13 +225,14 @@ function bottleCap(opts = {}) {
     }),
   );
 
+  // return thread;
+  // return union(core, flange);
   let neck = union(flange, core, thread);
   // let neck = union(flange, core);
 
   // Add a lead in chamfer to the neck to make it easier to insert the screw.
   const leadIn = translate(
-    //[0, 0, flangeHeight + coreHeight + leadInHeight / 2],
-    [0, 0, coreHeight + 2],
+    [0, 0, flangeHeight - threadOverlap + coreHeight - leadInHeight],
     rotate(
       [0, Math.PI, 0],
       leadInChamfer({
@@ -243,6 +242,8 @@ function bottleCap(opts = {}) {
       }),
     ),
   );
+
+  // return union(neck, leadIn);
   neck = subtract(neck, leadIn);
 
   if (innerBoreRadius > 0) {
@@ -255,13 +256,13 @@ function bottleCap(opts = {}) {
         segments: CYLINDER_SEGMENTS,
       }),
     );
-    neck = subtract(neck, bore);
+   neck = subtract(neck, bore);
   }
 
   // remove the excedent material on top and bottom of the neck
   const top = cuboid({
     size: [flangeRadius * 3, flangeRadius * 3, coreHeight],
-    center: [0, 0, coreHeight + flangeHeight + 2],
+    center: [0, 0, coreHeight * 1.25 + flangeHeight],
   });
   const bottom = cuboid({
     size: [flangeRadius * 3, flangeRadius * 3, coreHeight],
