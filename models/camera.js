@@ -196,10 +196,9 @@ module.exports.main = () => {
     body = subtract(body, cam);
 
     //Camera sensor screw mount
-    const sensorScrewMount = cameraMount({
-      innerLength: innerLength / 2, totalHeight: 13
-    });
+    const sensorScrewMount = cameraMount();
     body = union(body, sensorScrewMount);
+
 
     const caseScrewMounts = union(
       translate(
