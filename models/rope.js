@@ -79,7 +79,7 @@ function ropeJoint() {
 
   const smallAngleXY = ropeJointAngle(0, 0, 0, 7.5, 0.5);
   const smallAngleYZ = ropeJointAngle(0, Math.PI / 2, 0, 7.5, 0.5);
-  const largeAngleXZ = ropeJointAngle(-Math.PI / 2, 0, 0, largeRoundedRadius - jointRadius, jointRadius);
+  const largeAngleXZ = ropeJointAngle(-Math.PI / 2, 0, 0, largeRoundedRadius, jointRadius);
   
   const smallAngleXYDimensions = getSizes(smallAngleXY);
   const smallAngleYZDimensions = getSizes(smallAngleYZ);
