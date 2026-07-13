@@ -94,7 +94,7 @@ module.exports.main = () => {
     // return body;
 
     // Gx12 bottom hole.
-    const Gx12XOffset = -8;
+    const Gx12XOffset = -6;
     const Gx12YOffset = -18;
     const gx12BottomHole = translate(
       [Gx12XOffset, Gx12YOffset, -outerHeight / 2],
@@ -102,14 +102,14 @@ module.exports.main = () => {
     );
     // Gx12 hex hole for nut
     const gx12HexHole = translate(
-      [Gx12XOffset, Gx12YOffset, -1 - innerHeight / 2],
-      Hexagon(16, 6),
+      [Gx12XOffset, Gx12YOffset, -2 - innerHeight / 2],
+      Hexagon(18, 10),
     );
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
     // Power converter mount
     const powerConverterMountPiece = translate(
-      [8, -20, -innerHeight / 2],
+      [12, -20, -innerHeight / 2],
       rotate([0, 0, Math.PI / 2], powerConverterMount()),
     );
     body = union(body, powerConverterMountPiece);
