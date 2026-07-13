@@ -102,8 +102,8 @@ module.exports.main = () => {
     );
     // Gx12 hex hole for nut
     const gx12HexHole = translate(
-      [Gx12XOffset, Gx12YOffset, -1 - innerHeight / 2],
-      Hexagon(16, 6),
+      [Gx12XOffset, Gx12YOffset, -2 - innerHeight / 2],
+      Hexagon(18, 10),
     );
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
@@ -349,7 +349,7 @@ module.exports.main = () => {
     );
   }
 
-  return thread2Parts();
+  
 
   // return bottleCap({
   //   majorRadius: usbHoleScrewOuterRadius,
@@ -372,5 +372,6 @@ module.exports.main = () => {
   // return upperBody();
   // return union(lowerBodyWithJoint(), upperBody());
   // return upperBodyWithCap();
+  //return thread2Parts();
   return printable();
 };
