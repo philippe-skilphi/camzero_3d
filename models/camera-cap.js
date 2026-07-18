@@ -7,9 +7,9 @@ const {
 const { screwHole } = require("./screwery");
 
 const {
+  layout,
   cameraCapTopLength,
   cameraCapBottomLength,
-  cameraCapWidth,
   cameraCapHeight,
   outerLength,
   outerWidth,
@@ -48,7 +48,11 @@ function cameraCap() {
 
   const cutFrontBody = cuboid({
     size: [10, cameraCapOuterWidth, cameraCapHeight],
-    center: [cameraCapTopLength / 2 + 2, 0, cameraCapHeight / 2],
+    center: [
+      cameraCapTopLength / 2 + layout.cutFrontBodyOffset,
+      0,
+      cameraCapHeight / 2,
+    ],
   });
 
   body = subtract(body, cutAngleBody);

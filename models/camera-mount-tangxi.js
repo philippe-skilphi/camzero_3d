@@ -11,9 +11,7 @@ const {
   wallThickness,
   innerHeight,
   centeredHeight,
-  outerLength,
 } = require("./constants");
-const { add } = require("@jscad/modeling/src/maths/mat4");
 const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
 function cameraMount({ innerLength, totalHeight = 18 } = {}) {
@@ -48,7 +46,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       center: [
         innerLength - totalHeight / 2,
         -cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness -1,
+        -innerHeight / 2 + wallThickness - 1,
       ],
     }),
     cuboid({
@@ -60,7 +58,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       center: [
         innerLength - totalHeight / 2,
         cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness -1,
+        -innerHeight / 2 + wallThickness - 1,
       ],
     }),
     subtract(
@@ -70,7 +68,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 18,
-            height: totalHeight -2,
+            height: totalHeight - 2,
             center: [0, 0, 0],
             segments,
           }),
@@ -82,7 +80,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 15.6,
-            height: totalHeight- 2,
+            height: totalHeight - 2,
             center: [0, 0, 0],
             segments,
           }),

@@ -28,7 +28,8 @@ const {
   cutSeparationZAtX,
 } = require("./utils");
 
-const { cameraMount } = require("./camera-mount");
+const { cameraMount: cameraMountTangxi } = require("./camera-mount-tangxi");
+const { cameraMount: cameraMountSainsmart } = require("./camera-mount-sainsmart");
 const { raspberryZeroMount } = require("./raspberryzero-mount");
 const { powerConverterMount } = require("./power-converter-mount");
 const {
@@ -45,12 +46,14 @@ const {
 } = require("./trapezoidal-rope");
 
 const {
+  camModel,
+  layout,
+  sideScrewX,
   segments,
   innerLength,
   innerWidth,
   innerHeight,
   roundedRadius,
-  usbHoleRelativeX,
   usbHoleScrewOuterRadius,
   usbHoleScrewInnerRadius,
   outerLength,
@@ -67,6 +70,9 @@ const {
   upperBodyOuterLength,
   upperBodyInnerLength,
 } = require("./constants");
+
+const cameraMount =
+  camModel === "sainsmart" ? cameraMountSainsmart : cameraMountTangxi;
 
 module.exports.main = () => {
   /**
@@ -90,6 +96,14 @@ module.exports.main = () => {
     // Same 6 mm offset used on the horizontal upper mounts (along the screw axis).
     const upperOffset = 6;
     return { diagAngle, diagN, x, z, upperOffset };
+  }
+
+  /** Horizontal case-screw Z: mating-face step (tangxi) or ratio-based splitZ (sainsmart). */
+  function horizontalScrewZ() {
+    if (layout.screwZStrategy === "splitZ") {
+      return lowerBodyOuterHeight() - outerHeight / 2;
+    }
+    return getLowerUpperCutPath().horizontalStart[1];
   }
 
   function fullBody() {
@@ -120,17 +134,12 @@ module.exports.main = () => {
     );
   }
 
-  function upperBody() {
-    return subtract(fullBody(), lowerBody());
-  }
-
   function lowerBodyWithJoint() {
     let body = subtract(lowerBody(), trapezoidalRopeTrap());
     // let body = union(lowerBody(), trapezoidalRopeTrap());
 
     // Gx12 bottom hole.
-    const Gx12XOffset = -6;
-    const Gx12YOffset = -18;
+    const { x: Gx12XOffset, y: Gx12YOffset } = layout.gx12;
     const gx12BottomHole = translate(
       [Gx12XOffset, Gx12YOffset, -outerHeight / 2],
       cylinder({ radius: 6, height: 10, segments }),
@@ -142,42 +151,45 @@ module.exports.main = () => {
     );
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
-    // Power converter mount
-    const powerConverterMountPiece = translate(
-      [12, -20, -innerHeight / 2],
-      rotate([0, 0, Math.PI / 2], powerConverterMount()),
-    );
-    body = union(body, powerConverterMountPiece);
+    // Power converter mount (Tangxi only)
+    if (layout.hasPowerConverter) {
+      const powerConverterMountPiece = translate(
+        [layout.powerConverter.x, layout.powerConverter.y, -innerHeight / 2],
+        rotate([0, 0, Math.PI / 2], powerConverterMount()),
+      );
+      body = union(body, powerConverterMountPiece);
+    }
 
     // Camera body 1/4 screw mount on the bottom
     // First we need to substract the whole area then add the screw mount shape
     const bottomScrewMountBody = translate(
-      [4, 0, -outerHeight / 2],
+      [layout.bottomScrewMount.x, layout.bottomScrewMount.y, -outerHeight / 2],
       screwMount1_4Body(),
     );
     body = subtract(body, bottomScrewMountBody);
 
     const bottomScrewMount = translate(
-      [4, 0, -outerHeight / 2],
+      [layout.bottomScrewMount.x, layout.bottomScrewMount.y, -outerHeight / 2],
       screwMount1_4(),
     );
     body = union(body, bottomScrewMount);
 
     // Raspberry Pi 0 mount
     const raspberryPi0MountPiece = translate(
-      [-16, 11, -innerHeight / 2],
+      [layout.raspberryPi.x, layout.raspberryPi.y, -innerHeight / 2],
       rotate([0, 0, 0], raspberryZeroMount()),
     );
     body = union(body, raspberryPi0MountPiece);
 
     // Usb hole with screw thread
     // Main cylinder subtract
+    const { x: usbHoleX, y: usbHoleY } = layout.usbHole;
     const innerCylinder = innerScrewCylinder({
       majorRadius: usbHoleScrewOuterRadius,
     });
     body = subtract(
       body,
-      translate([usbHoleRelativeX, -12, -outerHeight / 2], innerCylinder),
+      translate([usbHoleX, usbHoleY, -outerHeight / 2], innerCylinder),
     );
 
     // Inner screw thread
@@ -189,15 +201,12 @@ module.exports.main = () => {
 
     body = union(
       body,
-      translate(
-        [usbHoleRelativeX, -12, -outerHeight / 2],
-        innerScrewThreadHole,
-      ),
+      translate([usbHoleX, usbHoleY, -outerHeight / 2], innerScrewThreadHole),
     );
 
     // subtract torus shape for 1mm joint at the bottom.
     const torusShape = translate(
-      [usbHoleRelativeX, -12, 10 - outerHeight / 2],
+      [usbHoleX, usbHoleY, 10 - outerHeight / 2],
       torus({
         innerRadius: 0.5,
         outerRadius: usbHoleScrewInnerRadius + 0.5,
@@ -211,7 +220,7 @@ module.exports.main = () => {
 
     // Usb hole 17.6 by 9
     const usbHole = translate(
-      [usbHoleRelativeX, -12, -outerHeight / 2 + innerCylinderHeight()],
+      [usbHoleX, usbHoleY, -outerHeight / 2 + innerCylinderHeight()],
       rotate(
         [0, 0, 0],
         roundedCuboid({
@@ -229,17 +238,14 @@ module.exports.main = () => {
     );
     body = subtract(body, cam);
 
-    //Camera sensor screw mount
-    const sensorScrewMount = cameraMount({
-      innerLength: innerLength / 2,
-      totalHeight: 13,
-    });
+    // Camera sensor screw mount
+    const sensorScrewMount = layout.cameraMountCall
+      ? cameraMount(layout.cameraMountCall)
+      : cameraMount();
     body = union(body, sensorScrewMount);
 
-    // Seat horizontal fasteners on the mating-face step (not the old ratio-based splitZ).
-    const cutPath = getLowerUpperCutPath();
-    const matingFaceZ = cutPath.horizontalStart[1];
-    const sideScrewX = -0.2 * outerLength;
+    const matingFaceZ = horizontalScrewZ();
+    const sideX = sideScrewX();
     const { diagAngle, x: diagonalScrewX, z: diagonalScrewZ } =
       diagonalScrewFrame();
 
@@ -258,11 +264,11 @@ module.exports.main = () => {
 
     const caseScrewMounts = union(
       translate(
-        [sideScrewX, outerWidth / 2, matingFaceZ],
+        [sideX, outerWidth / 2, matingFaceZ],
         rotate([Math.PI, 0, Math.PI / 2], screwHoleHalfCircularWithSupport()),
       ),
       translate(
-        [sideScrewX, -outerWidth / 2, matingFaceZ],
+        [sideX, -outerWidth / 2, matingFaceZ],
         rotate([Math.PI, 0, -Math.PI / 2], screwHoleHalfCircularWithSupport()),
       ),
       translate(
@@ -277,17 +283,18 @@ module.exports.main = () => {
   }
 
   function upperBodyWithCap() {
-    return union(upperBody(), translate([10, 0, 3], cameraCap()));
+    return union(
+      upperBody(),
+      translate(layout.cameraCapTranslate, cameraCap()),
+    );
   }
 
   function upperBody() {
     let body = subtract(fullBody(), lowerBody());
 
     // Case screw mounts on the top side, face down to limit water ingress.
-    const cutPath = getLowerUpperCutPath();
-    const matingFaceZ = cutPath.horizontalStart[1];
-    const screwMountZOffset = 6 + matingFaceZ;
-    const sideScrewX = -0.2 * outerLength;
+    const screwMountZOffset = 6 + horizontalScrewZ();
+    const sideX = sideScrewX();
     const {
       diagAngle,
       diagN,
@@ -315,11 +322,11 @@ module.exports.main = () => {
 
     const caseScrewMounts = union(
       translate(
-        [sideScrewX, outerWidth / 2, screwMountZOffset],
+        [sideX, outerWidth / 2, screwMountZOffset],
         rotate([Math.PI, 0, Math.PI / 2], screwMountHalfCircularWithSupport()),
       ),
       translate(
-        [sideScrewX, -outerWidth / 2, screwMountZOffset],
+        [sideX, -outerWidth / 2, screwMountZOffset],
         rotate([Math.PI, 0, -Math.PI / 2], screwMountHalfCircularWithSupport()),
       ),
       translate(
@@ -335,21 +342,22 @@ module.exports.main = () => {
     // In this case we need to add support on the top of the screw mounts.
     // Because we will print that piece upside down.....
 
+    const [capScrewXPos, capScrewXNeg] = layout.capScrewX;
     const capScrewMounts = union(
       translate(
-        [19, outerWidth / 2, outerHeight / 4],
+        [capScrewXPos, outerWidth / 2, outerHeight / 4],
         rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({ additionalHeight: 5 })),
       ),
       translate(
-        [-11, outerWidth / 2, outerHeight / 4],
+        [capScrewXNeg, outerWidth / 2, outerHeight / 4],
         rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({ additionalHeight: 5 })),
       ),
       translate(
-        [19, -(outerWidth / 2), outerHeight / 4],
+        [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
         rotate([Math.PI / 2, 0, 0], screwMountM2_5({ additionalHeight: 5 })),
       ),
       translate(
-        [-11, -(outerWidth / 2), outerHeight / 4],
+        [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
         rotate([Math.PI / 2, 0, 0], screwMountM2_5({ additionalHeight: 5 })),
       ),
     );
@@ -391,7 +399,7 @@ module.exports.main = () => {
 
     return subtract(
       union(
-        translate([0, 0, 6], rotate([0, 0, 0], inner)),
+        translate([0, 0, 14], rotate([0, 0, 0], inner)),
         translate([0, 0, 0], outer),
       ),
       cuboid({ size: [100, 100, 100], center: [0, 50, 0] }),
@@ -401,11 +409,11 @@ module.exports.main = () => {
   function printAllChecks() {
     return union(
       translate([0, 0, 25], union(lowerBodyWithJoint(), upperBody())),
-      translate([0, -100 , 10], upperBodyWithCap()),
-      translate([0, 70 , 0], thread2Parts()),
+      translate([0, -100, 10], upperBodyWithCap()),
+      translate([0, 70, 0], thread2Parts()),
       translate([-150, 0, 25], union(lowerBodyWithJoint(), upperBodyWithCap())),
-      translate([-150, -100 , 10], upperBody()),
-      translate([-150, 100 , 25], lowerBodyWithJoint()),
+      translate([-150, -100, 10], upperBody()),
+      translate([-150, 100, 25], lowerBodyWithJoint()),
     );
   }
 
