@@ -4,6 +4,8 @@ const {
   transforms: { translate, rotate },
 } = require("@jscad/modeling");
 
+const { segments } = require("./constants");
+
 function screwMount({
   radius = 1.5,
   height = 3,
@@ -12,7 +14,7 @@ function screwMount({
 } = {}) {
   const mount = translate(
     [0, 0, -height / 2],
-    cylinder({ radius: radius, height: height, segments: 128 }),
+    cylinder({ radius: radius, height: height, segments }),
   );
   const totalHeight = height + additionalHeight;
   const base = translate(
@@ -20,7 +22,7 @@ function screwMount({
     cylinder({
       radius: radius + thickness,
       height: totalHeight,
-      segments: 128,
+      segments,
     }),
   );
   return translate([0, 0, totalHeight], subtract(base, mount));
@@ -38,7 +40,7 @@ function screwMountBody({
     cylinder({
       radius: radius + thickness,
       height: totalHeight,
-      segments: 128,
+      segments,
     }),
   );
 
@@ -54,7 +56,7 @@ function screwMountHalfCircular({
   const mount = cylinder({
     radius: radius,
     height: height,
-    segments: 128,
+    segments,
     center: [radius, 0, additionalHeight + thickness * 2],
   });
   const base = screwMountHalfCircularBody({
@@ -76,13 +78,13 @@ function screwHole({
   const headCylinder = cylinder({
     radius: headRadius,
     height: headHeight,
-    segments: 128,
+    segments,
     center: [headRadius, 0, (headHeight + holeHeight) / 2 + headHeight / 2],
   });
   const holeCylinder = cylinder({
     radius: holeRadius,
     height: holeHeight,
-    segments: 128,
+    segments,
     center: [headRadius, 0, (headHeight + holeHeight) / 2 - holeHeight / 2],
   });
 
@@ -100,13 +102,13 @@ function screwHoleHalfCircular({
   const headCylinder = cylinder({
     radius: headRadius,
     height: headHeight,
-    segments: 128,
+    segments,
     center: [headRadius, 0, (headHeight + holeHeight) / 2 + headHeight / 2],
   });
   const holeCylinder = cylinder({
     radius: holeRadius,
     height: holeHeight,
-    segments: 128,
+    segments,
     center: [headRadius, 0, (headHeight + holeHeight) / 2 - holeHeight / 2],
   });
   //  return union(holeCylinder, headCylinder);
@@ -128,9 +130,9 @@ function screwHoleHalfCircular({
 function screwHoleHalfCircularWithSupport({
   bodyRadius = 2.5,
   holeHeight = 2,
-  holeRadius = 1.6,
+  holeRadius = 1.9,
   headHeight = 2,
-  headRadius = 2.5,
+  headRadius = 3,
   thickness = 1,
 } = {}) {
   const totalHoleHeight = holeHeight + headHeight + bodyRadius * 2.5;
@@ -138,13 +140,13 @@ function screwHoleHalfCircularWithSupport({
   const headCylinder = cylinder({
     radius: headRadius,
     height: totalHoleHeight - holeHeight,
-    segments: 128,
-    center: [headRadius, 0, 0.2 + (headHeight + totalHoleHeight) / 2],
+    segments,
+    center: [headRadius, 0,  (headHeight + totalHoleHeight) / 2],
   });
   const holeCylinder = cylinder({
     radius: holeRadius,
     height: holeHeight,
-    segments: 128,
+    segments,
     center: [
       headRadius,
       0,
@@ -189,7 +191,7 @@ function screwMountHalfCircularWithSupport({
   const mount = cylinder({
     radius: radius,
     height: height,
-    segments: 128,
+    segments,
     center: [radius, 0, additionalHeight + thickness * 2],
   });
   const base = translate(
@@ -212,8 +214,7 @@ function screwMountHalfCircularWithSupport({
       }),
     ),
   );
-  // return support;
-
+  
   return subtract(base, mount, support);
 }
 
@@ -230,7 +231,7 @@ function screwMountHalfCircularBody({
       cylinder({
         radius: 3 * radius,
         height: totalHeight,
-        segments: 128,
+        segments,
       }),
       cuboid({
         size: [3 * radius, 6 * radius, totalHeight],
@@ -249,7 +250,7 @@ function screwMountHalfCircularBody({
 
 function screwMountM2(additionalHeight) {
   return screwMount({
-    radius: 1.5,
+    radius: 1.6,
     height: 3,
     thickness: 2,
     additionalHeight: additionalHeight ?? 1,
@@ -258,7 +259,7 @@ function screwMountM2(additionalHeight) {
 
 function screwMountM2_5({ additionalHeight, thickness } = {}) {
   return screwMount({
-    radius: 1.7,
+    radius: 1.8,
     height: 4,
     thickness: thickness ?? 2,
     additionalHeight: additionalHeight ?? 1,
@@ -287,7 +288,7 @@ function screwMount1_4(additionalHeight) {
   additionalHeight = additionalHeight ?? 1;
   const holeDepth = 12.7;
   const piece = screwMount({
-    radius: 6.1,
+    radius: 3.8,
     height: holeDepth,
     thickness: 6,
     additionalHeight: additionalHeight,
@@ -299,11 +300,11 @@ function screwMount1_4(additionalHeight) {
   );
 }
 
-const screwMount1_4Body = (additionalHeight) => {
+const screwMount1_4Body = () => {
   return screwMountBody({
-    radius: 6.1,
-    height: 12.7,
-    additionalHeight: additionalHeight,
+    radius: 3.1,
+    height: 13,
+    additionalHeight: 4,
     thickness: 6,
   });
 };

@@ -4,12 +4,12 @@ const {
   primitives: { cylinder, cuboid },
 } = require("@jscad/modeling");
 const { screwMountM2_5 } = require("./screwery");
+const { segments } = require("./constants");
 
 const powerConverterLength = 12;
 const powerConverterWidth = 17;
 const radius = 2;
 const height = 5;
-const segments = 128;
 const deltaHeight = 2;
 
 function powerConverterMount() {

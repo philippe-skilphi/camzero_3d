@@ -4,6 +4,8 @@ const {
   transforms: { translate, rotate },
 } = require("@jscad/modeling");
 
+const { segments } = require("./constants");
+
 function cameraHole33mm() {
   return cameraHole({
     outerRadius: 16.5,
@@ -35,9 +37,9 @@ function cameraHole35mm() {
   return rotate(
     [0, Math.PI, 0],
     cameraHole({
-      outerRadius: 17.5,
+      outerRadius: 18,
       innerRadius: 14.3,
-      height: 2,
+      height: 4,
     }),
   );
 }
@@ -47,10 +49,10 @@ function cameraHole({
   innerRadius = 15.4,
   height = 2,
 } = {}) {
-  const cyl1 = cylinder({ radius: outerRadius, height: height, segments: 128 });
+  const cyl1 = cylinder({ radius: outerRadius, height: height, segments });
   const cyl2 = translate(
     [0, 0, height],
-    cylinder({ radius: innerRadius, height: height, segments: 128 }),
+    cylinder({ radius: innerRadius, height: height, segments }),
   );
 
   // We decide no joint on that one for now....

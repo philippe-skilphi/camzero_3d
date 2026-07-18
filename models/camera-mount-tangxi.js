@@ -6,18 +6,20 @@ const {
 
 const { screwMountM2 } = require("./screwery");
 const {
+  segments,
   cameraMountHoleSpacing,
   wallThickness,
   innerHeight,
   centeredHeight,
-  outerLength,
 } = require("./constants");
-const { add } = require("@jscad/modeling/src/maths/mat4");
 const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
 function cameraMount({ innerLength, totalHeight = 18 } = {}) {
   const additionalHeight = totalHeight - 4;
-  return union(
+
+  console.log([innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2]);
+
+  let body = union(
     translate(
       [innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2],
       rotate([0, -Math.PI / 2, 0], screwMountM2(additionalHeight)),
@@ -42,9 +44,9 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
         (centeredHeight - cameraMountHoleSpacing) / 2 - wallThickness,
       ],
       center: [
-        innerLength - wallThickness - 5,
+        innerLength - totalHeight / 2,
         -cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness -1,
+        -innerHeight / 2 + wallThickness - 1,
       ],
     }),
     cuboid({
@@ -54,46 +56,48 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
         (centeredHeight - cameraMountHoleSpacing) / 2 - wallThickness,
       ],
       center: [
-        innerLength - wallThickness - 5,
+        innerLength - totalHeight / 2,
         cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness -1,
+        -innerHeight / 2 + wallThickness - 1,
       ],
     }),
     subtract(
       translate(
-        [additionalHeight + innerLength / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, 0],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 18,
             height: totalHeight - 2,
             center: [0, 0, 0],
-            segments: 128,
+            segments,
           }),
         ),
       ),
       translate(
-        [additionalHeight + innerLength / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, 0],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
             radius: 15.6,
             height: totalHeight - 2,
             center: [0, 0, 0],
-            segments: 128,
+            segments,
           }),
         ),
       ),
       cuboid({
-        size: [totalHeight - 2, cameraMountHoleSpacing + 10, 8],
-        center: [additionalHeight + innerLength / 2, 0, -cameraMountHoleSpacing / 2 - 2],
+        size: [totalHeight, cameraMountHoleSpacing + 10, 8],
+        center: [innerLength - totalHeight / 2, 0, -cameraMountHoleSpacing / 2 - 2],
       }),
       cuboid({
-        size: [totalHeight - 2, cameraMountHoleSpacing + 10, 8],
-        center: [additionalHeight + innerLength / 2, 0, cameraMountHoleSpacing / 2 + 2],
+        size: [totalHeight, cameraMountHoleSpacing + 10, 8],
+        center: [innerLength - totalHeight / 2, 0, cameraMountHoleSpacing / 2 + 2],
       }),
     ),
   );
+
+  return body;
 }
 
 module.exports = { cameraMount };

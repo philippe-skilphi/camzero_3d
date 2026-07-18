@@ -16,6 +16,5 @@ const {
 function outerUsbEnclosure() {
   return cuboid({
     size: [17.6, 9, 6],
-    roundRadius: 1,
   });
 }
