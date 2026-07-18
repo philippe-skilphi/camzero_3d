@@ -17,7 +17,7 @@ const largeRoundedRadius = 10;
 
 const modelDimensions = {
   tangxi: {
-    innerLength: 100,
+    innerLength: 105,
     innerWidth: 54,
     innerHeight: 45,
     upperBodyInnerLength: 85,
@@ -26,12 +26,12 @@ const modelDimensions = {
     usbHoleRelativeY: -12,
   },
   sainsmart: {
-    innerLength: 90,
+    innerLength: 100,
     innerWidth: 45,
     innerHeight: 40,
     upperBodyInnerLength: 75,
     upperToLowerHeightRatio: 0.333,
-    usbHoleRelativeX: -22,
+    usbHoleRelativeX: -28,
     usbHoleRelativeY: -10,
   },
 };
@@ -49,7 +49,7 @@ const {
 const upperBodyOuterLength = upperBodyInnerLength + wallThickness;
 const upperBodyCenteredLength = (upperBodyOuterLength + upperBodyInnerLength) / 2;
 
-const cameraMountHoleSpacing = 27;
+const cameraMountHoleSpacing = 29;
 
 const usbHoleScrewOuterRadius = 13.5;
 const usbHoleScrewInnerRadius = 12.5;
@@ -84,9 +84,9 @@ const modelLayouts = {
   tangxi: {
     gx12: { x: -6, y: -18 },
     hasPowerConverter: true,
-    powerConverter: { x: 12, y: -20 },
+    powerConverter: { x: 16, y: -18 },
     bottomScrewMount: { x: 4, y: 0 },
-    raspberryPi: { x: -16, y: 11 },
+    raspberryPi: { x: -17, y: 10 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
     // Proportion of outerLength; evaluated at use site with outerLength.
     sideScrewXFactor: -0.2,
@@ -99,11 +99,11 @@ const modelLayouts = {
     cutFrontBodyOffset: 2,
   },
   sainsmart: {
-    gx12: { x: 6, y: -10 },
+    gx12: { x: 0, y: -14 },
     hasPowerConverter: false,
-    powerConverter: null,
+    powerConverter: { x: 16, y: -12 },
     bottomScrewMount: { x: 10, y: 10 },
-    raspberryPi: { x: -10, y: 6 },
+    raspberryPi: { x: -15, y: 5 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
     sideScrewXFactor: null,
     sideScrewXAbsolute: -20,

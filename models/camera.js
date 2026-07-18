@@ -152,13 +152,14 @@ module.exports.main = () => {
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
     // Power converter mount (Tangxi only)
-    if (layout.hasPowerConverter) {
-      const powerConverterMountPiece = translate(
-        [layout.powerConverter.x, layout.powerConverter.y, -innerHeight / 2],
-        rotate([0, 0, Math.PI / 2], powerConverterMount()),
-      );
-      body = union(body, powerConverterMountPiece);
+    if (layout.hasPowerConverter) {  
+        const powerConverterMountPiece = translate(
+          [layout.powerConverter.x, layout.powerConverter.y, -innerHeight / 2],
+          rotate([0, 0, Math.PI / 2], powerConverterMount()),
+        );
+        body = union(body, powerConverterMountPiece);
     }
+
 
     // Camera body 1/4 screw mount on the bottom
     // First we need to substract the whole area then add the screw mount shape
@@ -408,33 +409,16 @@ module.exports.main = () => {
 
   function printAllChecks() {
     return union(
-      translate([0, 0, 25], union(lowerBodyWithJoint(), upperBody())),
-      translate([0, -100, 10], upperBodyWithCap()),
-      translate([0, 70, 0], thread2Parts()),
-      translate([-150, 0, 25], union(lowerBodyWithJoint(), upperBodyWithCap())),
-      translate([-150, -100, 10], upperBody()),
-      translate([-150, 100, 25], lowerBodyWithJoint()),
+      translate([0, 0, 40], union(lowerBodyWithJoint(), upperBody())),
+      translate([0, -100, 20], upperBodyWithCap()),
+      translate([0, 70, 10], thread2Parts()),
+      translate([-150, 0, 40], union(lowerBodyWithJoint(), upperBodyWithCap())),
+      translate([-150, -100, 25], upperBody()),
+      translate([-150, 100, 40], lowerBodyWithJoint()),
     );
   }
 
-  // return lowerBody();
-  // return upperBody();
-  // return fullBody();
-  // return rotate([0, Math.PI / 2, 0], fullPiece());
-  // return cameraCap();
-  // return upperBody();
-  // return translate([0, 0, 25], lowerBodyWithJoint());
-  // console.log(measureArea(test));
-  // return ropeJoint();
-  // return cameraHole();
-  // return screwMount1_4();
-  // return raspberryZeroMount();
-  // return translate([0, 0, 40], lowerBodyWithJoint());
-  // return union(lowerBodyWithJoint(), upperBody());
-  // return upperBodyWithCap();
-  // return thread2Parts();
-  // return trapezoidalSegment(10);
-  // return translate([0, 0, 50], subtract(lowerBody(), trapezoidalRopeTrap()));
-  return printAllChecks();
+  // return translate([0, 0, 50], lowerBodyWithJoint());
+  // return printAllChecks();
   return printable();
 };
