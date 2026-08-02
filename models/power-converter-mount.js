@@ -7,10 +7,10 @@ const { screwMountM2_5 } = require("./screwery");
 const { segments } = require("./constants");
 
 const powerConverterLength = 12;
-const powerConverterWidth = 17;
+const powerConverterWidth = 16.6;
 const radius = 2;
 const height = 5;
-const deltaHeight = 2;
+const deltaHeight = 4;
 
 function powerConverterMount() {
   return subtract(

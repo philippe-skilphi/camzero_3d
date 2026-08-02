@@ -16,21 +16,21 @@ const {
 const { getVec2RoundedPoints, getLowerUpperCutPath } = require("./utils");
 
 // ---------------------------------------------------------------------------
-// Catalog profile for a 2.7 mm rope / O-ring retaining groove (gorge trapézoïdale).
+// Catalog profile for a 2 mm rope / O-ring retaining groove (gorge trapézoïdale).
 // Tweak these to change the main trapezoid cross-section.
 // ---------------------------------------------------------------------------
 
 /** K — opening width at the mating face (mm). Narrower than the bottom so the rope is trapped. */
-const K = 2.45;
+const K = 1.75;
 
 /** k — groove depth from the mating face into the solid (mm). */
-const k = 1.9;
+const k = 1.4;
 
 /** R — fillet radius at the two bottom (wide) corners of the groove (mm). */
-const R = 0.3;
+const R = 0.2;
 
 /** r — fillet radius at the two top (opening) edges of the groove (mm). */
-const r = 0.15;
+const r = 0.1;
 
 /** α — interior angle between the groove base and each side wall (rad). 60° for the 2.7 mm catalog row. */
 const alpha = Math.PI / 3;

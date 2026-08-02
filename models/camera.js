@@ -151,7 +151,7 @@ module.exports.main = () => {
     );
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
-    // Power converter mount (Tangxi only)
+    // Power converter mount
     if (layout.hasPowerConverter) {  
         const powerConverterMountPiece = translate(
           [layout.powerConverter.x, layout.powerConverter.y, -innerHeight / 2],
