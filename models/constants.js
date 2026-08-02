@@ -11,7 +11,7 @@ const threadSegmentsPerRotation = Math.max(8, Math.round((segments * 48) / 128))
 
 const camModel = requireCamModelFromEnv();
 
-const wallThickness = 6;
+const wallThickness = 5;
 const roundedRadius = 8;
 const largeRoundedRadius = 10;
 
@@ -22,17 +22,17 @@ const modelDimensions = {
     innerHeight: 45,
     upperBodyInnerLength: 85,
     upperToLowerHeightRatio: 0.4,
-    usbHoleRelativeX: -32,
-    usbHoleRelativeY: -12,
+    usbHoleRelativeX: -36,
+    usbHoleRelativeY: -15,
   },
   sainsmart: {
     innerLength: 100,
-    innerWidth: 45,
+    innerWidth: 50,
     innerHeight: 40,
     upperBodyInnerLength: 75,
     upperToLowerHeightRatio: 0.333,
-    usbHoleRelativeX: -28,
-    usbHoleRelativeY: -10,
+    usbHoleRelativeX: -32,
+    usbHoleRelativeY: -17,
   },
 };
 
@@ -100,8 +100,8 @@ const modelLayouts = {
   },
   sainsmart: {
     gx12: { x: 0, y: -14 },
-    hasPowerConverter: false,
-    powerConverter: { x: 16, y: -12 },
+    hasPowerConverter: true,
+    powerConverter: { x: 20, y: -17 },
     bottomScrewMount: { x: 10, y: 10 },
     raspberryPi: { x: -15, y: 5 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
