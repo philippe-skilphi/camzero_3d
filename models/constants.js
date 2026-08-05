@@ -85,7 +85,7 @@ const modelLayouts = {
     gx12: { x: -6, y: -18 },
     hasPowerConverter: true,
     powerConverter: { x: 16, y: -18 },
-    bottomScrewMount: { x: 4, y: 0 },
+    bottomScrewMount: { x: 6, y: 12 },
     raspberryPi: { x: -17, y: 10 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
     // Proportion of outerLength; evaluated at use site with outerLength.
@@ -102,7 +102,7 @@ const modelLayouts = {
     gx12: { x: 0, y: -14 },
     hasPowerConverter: true,
     powerConverter: { x: 20, y: -17 },
-    bottomScrewMount: { x: 10, y: 10 },
+    bottomScrewMount: { x: 6, y: 16 },
     raspberryPi: { x: -15, y: 5 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
     sideScrewXFactor: null,
