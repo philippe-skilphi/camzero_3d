@@ -207,16 +207,18 @@ module.exports.main = () => {
     let body = subtract(lowerBody(), trapezoidalRopeTrap());
     // let body = union(lowerBody(), trapezoidalRopeTrap());
 
-    // Gx12 bottom hole.
+    // SP13 bottom hole.
+    // I kept Gx12 vars
+    //TODO: Change to SP13 vars
     const { x: Gx12XOffset, y: Gx12YOffset } = layout.gx12;
     const gx12BottomHole = translate(
       [Gx12XOffset, Gx12YOffset, -outerHeight / 2],
-      cylinder({ radius: 6, height: 10, segments }),
+      cylinder({ radius: 6.6, height: 10, segments }),
     );
     // Gx12 hex hole for nut
     const gx12HexHole = translate(
       [Gx12XOffset, Gx12YOffset, -2 - innerHeight / 2],
-      Hexagon(18, 10),
+      Hexagon(20.5, 10),
     );
     body = subtract(body, gx12BottomHole, gx12HexHole);
 
