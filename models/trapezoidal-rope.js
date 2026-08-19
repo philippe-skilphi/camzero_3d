@@ -2,7 +2,7 @@ const {
   geometries: { geom2 },
   extrusions: { extrudeLinear, extrudeRotate },
   maths: { vec2, vec3, mat4 },
-  transforms: { translate, rotate, transform },
+  transforms: { translate, transform },
   booleans: { union },
 } = require("@jscad/modeling");
 
@@ -10,10 +10,15 @@ const {
   segments,
   centeredWidth,
   centeredLength,
+  frontSeamCurveWidth,
   wallThickness,
   roundedRadius,
 } = require("./constants");
-const { getVec2RoundedPoints, getLowerUpperCutPath } = require("./utils");
+const {
+  caseSeparationZ,
+  getFrontSeamCurvePoints,
+  getVec2RoundedPoints,
+} = require("./utils");
 
 // ---------------------------------------------------------------------------
 // Catalog profile for a 2 mm rope / O-ring retaining groove (gorge trapézoïdale).
@@ -52,12 +57,6 @@ const FACE_OVERSHOOT = 0.01;
  * mid-plane around the body corners.
  */
 const LOOP_CORNER_RADIUS = roundedRadius - wallThickness / 2;
-
-/**
- * TOP_CORNER_RADIUS — 90° bends where the diagonal meets the top Y-connector (mm).
- * Uses the full body roundRadius because that path sits near the outer top surface.
- */
-const TOP_CORNER_RADIUS = roundedRadius;
 
 /**
  * 2D cross-section of the trapezoidal retaining groove.
@@ -223,209 +222,105 @@ function placeAxialCornerCW(bendRadius, angle, origin, normal, startDir) {
 }
 
 /**
- * Cut-path fillet (R = 20 from lower/upper split) at fixed Y.
- * Radial-mode revolution around an axis // Y through the fillet center.
- */
-function placeFilletRun(y) {
-  const path = getLowerUpperCutPath();
-  const { filletRadius, filletCenter, startAngle, filletSweep } = path;
-
-  const sector = trapezoidalRadius(filletRadius, filletSweep, {
-    mode: "radial",
-    startAngle,
-    overshoot: FACE_OVERSHOOT,
-  });
-
-  // Local arc in XY / axis Z → world arc in XZ / axis Y.
-  const oriented = rotate([Math.PI / 2, 0, 0], sector);
-  return translate([filletCenter[0], y, filletCenter[1]], oriented);
-}
-
-/** Map a cut-path (x, z) point to world at the given wall Y. */
-function xzToWorld(xz, y) {
-  return [xz[0], y, xz[1]];
-}
-
-/** Unit tangent along the diagonal cut, and face normal toward the upper/gap side. */
-function diagonalTangentAndNormal(path) {
-  const dx = path.diagonalEnd[0] - path.diagonalStart[0];
-  const dz = path.diagonalEnd[1] - path.diagonalStart[1];
-  const tangent = normalize3([dx, 0, dz]);
-  const normal = normalize3([-dz, 0, dx]);
-  return { tangent, normal };
-}
-
-/**
- * Path length along the diagonal from the outer top endpoint so the top Y-connector
- * stays inside the top wall (inclined dig + bottom flare must not break z = innerHeight/2).
- */
-function topConnectorInset(diagT, diagN) {
-  const tz = Math.abs(diagT[2]);
-  const nz = Math.abs(diagN[2]);
-  if (tz < 1e-9) {
-    return wallThickness / 2;
-  }
-  const bottomHalfWidth = K / 2 + (k + FACE_OVERSHOOT) / Math.tan(alpha);
-  // World-Z reach below the path centerline.
-  const below = k * nz + bottomHalfWidth * tz;
-  const margin = 0.15;
-  const maxInset = (wallThickness - below - margin) / tz;
-  const midInset = wallThickness / 2 / tz;
-  return Math.max(0, Math.min(midInset, maxInset));
-}
-
-/**
- * Closed-loop trapezoidal rope trap on the lower/upper mating cut face.
+ * Closed-loop trapezoidal rope trap on the low horizontal mating face.
+ * The front connector follows the same smooth dip as the body split.
  * Positive cutter — subtract from lowerBody only.
- *
- * Loop (CW when viewed along face normals):
- *   left Y-connector → +Y long run (horizontal + fillet + diagonal)
- *   → top Y-connector → -Y long run (reverse) → back to left connector
- *
- * @returns {geom3}
+ * @returns {import("@jscad/modeling/src/geometries/types").Geom3}
  */
 function trapezoidalRopeTrap() {
-  const path = getLowerUpperCutPath();
-  const Rc = LOOP_CORNER_RADIUS;
-  const topRc = TOP_CORNER_RADIUS;
+  const separationZ = caseSeparationZ();
+  const normal = [0, 0, 1];
+  const xExtent = centeredLength / 2;
+  const yExtent = centeredWidth / 2;
+  const cornerRadius = LOOP_CORNER_RADIUS;
+  const xCorner = xExtent - cornerRadius;
+  const yCorner = yExtent - cornerRadius;
+  const curveHalfWidth = frontSeamCurveWidth / 2;
+  const sideLength = 2 * xCorner;
+  const rearLength = 2 * yCorner;
+  const frontStraightLength = yCorner - curveHalfWidth;
+  const segment = (length) =>
+    trapezoidalSegment(length, { overshoot: FACE_OVERSHOOT });
 
-  // ±Y wall mid-planes (groove long runs sit here).
-  const yPos = centeredWidth / 2;
-  const yNeg = -centeredWidth / 2;
-
-  // Horizontal step of the cut (world Z of the mating face on that step).
-  const z0 = path.horizontalStart[1];
-
-  // Left (±X) wall mid-plane.
-  const xWallMid = -centeredLength / 2;
-
-  // Outer-top endpoint of the cut silhouette (before top-wall inset).
-  const topEnd = path.diagonalEnd;
-
-  const { tangent: diagT, normal: diagN } = diagonalTangentAndNormal(path);
-  const horizN = [0, 0, 1]; // opening toward upper on the horizontal step
-  const horizT = [1, 0, 0]; // long-run direction along +X
-
-  // Inset top connector along the diagonal so the groove stays in the top wall.
-  const topInset = topConnectorInset(diagT, diagN);
-  const topConn = [
-    topEnd[0] - diagT[0] * topInset,
-    topEnd[1] - diagT[2] * topInset,
+  const parts = [
+    // Horizontal side and rear runs.
+    placeOriented(
+      segment(sideLength),
+      [-xCorner, yExtent, separationZ],
+      [1, 0, 0],
+      normal,
+    ),
+    placeOriented(
+      segment(sideLength),
+      [xCorner, -yExtent, separationZ],
+      [-1, 0, 0],
+      normal,
+    ),
+    placeOriented(
+      segment(rearLength),
+      [-xExtent, -yCorner, separationZ],
+      [0, 1, 0],
+      normal,
+    ),
+    // Short front runs connect the plan-view corners to the curved section.
+    placeOriented(
+      segment(frontStraightLength),
+      [xExtent, -yCorner, separationZ],
+      [0, 1, 0],
+      normal,
+    ),
+    placeOriented(
+      segment(frontStraightLength),
+      [xExtent, curveHalfWidth, separationZ],
+      [0, 1, 0],
+      normal,
+    ),
+    // Four horizontal plan-view corners.
+    placeAxialCornerCW(
+      cornerRadius,
+      Math.PI / 2,
+      [-xCorner, yCorner, separationZ],
+      normal,
+      [-1, 0, 0],
+    ),
+    placeAxialCornerCW(
+      cornerRadius,
+      Math.PI / 2,
+      [xCorner, yCorner, separationZ],
+      normal,
+      [0, 1, 0],
+    ),
+    placeAxialCornerCW(
+      cornerRadius,
+      Math.PI / 2,
+      [xCorner, -yCorner, separationZ],
+      normal,
+      [1, 0, 0],
+    ),
+    placeAxialCornerCW(
+      cornerRadius,
+      Math.PI / 2,
+      [-xCorner, -yCorner, separationZ],
+      normal,
+      [0, -1, 0],
+    ),
   ];
 
-  // --- Segment lengths (corners eat Rc / topRc at each end) ---
-  const h0x = xWallMid + Rc; // horizontal run starts after the left corner
-  const hLen = path.horizontalEnd[0] - h0x;
-
-  const d0 = path.diagonalStart;
-  const dLen =
-    Math.hypot(topConn[0] - d0[0], topConn[1] - d0[1]) - topRc;
-
-  const leftYConnLen = centeredWidth - 2 * Rc;
-  const topYConnLen = centeredWidth - 2 * topRc;
-
-  const parts = [];
-
-  // -------------------------------------------------------------------------
-  // Long runs at y = ±yPos / ±yNeg (cut silhouette through the ±Y walls)
-  // -------------------------------------------------------------------------
-  for (const y of [yPos, yNeg]) {
-    // SEGMENT: horizontal step along +X on the mating face (z = z0).
-    // Origin at left end after the left corner; opening +Z, depth -Z.
+  const curvePoints = getFrontSeamCurvePoints();
+  for (let index = 0; index < curvePoints.length - 1; index++) {
+    const [y0, z0] = curvePoints[index];
+    const [y1, z1] = curvePoints[index + 1];
+    const dy = y1 - y0;
+    const dz = z1 - z0;
     parts.push(
       placeOriented(
-        trapezoidalSegment(hLen, { overshoot: FACE_OVERSHOOT }),
-        [h0x, y, z0],
-        horizT,
-        horizN,
-      ),
-    );
-
-    // ANGLE / FILLET: R=20 cut fillet between horizontal step and diagonal
-    // (same arc as lowerBody / getLowerUpperCutPath).
-    parts.push(placeFilletRun(y));
-
-    // SEGMENT: diagonal portion of the cut, from fillet end toward the top connector.
-    // Opening along diagN (gap / upper); depth into lowerBody.
-    parts.push(
-      placeOriented(
-        trapezoidalSegment(dLen, { overshoot: FACE_OVERSHOOT }),
-        xzToWorld(d0, y),
-        diagT,
-        diagN,
+        segment(Math.hypot(dy, dz)),
+        [xExtent, y0, z0],
+        [0, dy, dz],
+        [0, -dz, dy],
       ),
     );
   }
-
-  // -------------------------------------------------------------------------
-  // End connectors (close the loop across Y)
-  // -------------------------------------------------------------------------
-
-  // SEGMENT: left Y-connector — through left wall mid-plane (x = xWallMid),
-  // on the horizontal step (z = z0), from -Y corner to +Y corner.
-  parts.push(
-    placeOriented(
-      trapezoidalSegment(leftYConnLen, { overshoot: FACE_OVERSHOOT }),
-      [xWallMid, yNeg + Rc, z0],
-      [0, 1, 0],
-      horizN,
-    ),
-  );
-
-  // SEGMENT: top Y-connector — on the inclined cut face at topConn,
-  // mid-ish top wall, from -Y top corner to +Y top corner.
-  parts.push(
-    placeOriented(
-      trapezoidalSegment(topYConnLen, { overshoot: FACE_OVERSHOOT }),
-      [topConn[0], yNeg + topRc, topConn[1]],
-      [0, 1, 0],
-      diagN,
-    ),
-  );
-
-  // -------------------------------------------------------------------------
-  // Left angles (horizontal face, normal +Z) — radius LOOP_CORNER_RADIUS
-  // -------------------------------------------------------------------------
-
-  // ANGLE: +Y left — joins left Y-connector to +Y horizontal run.
-  // Center (xWallMid+Rc, yPos-Rc, z0); CW from radial -X to +Y.
-  parts.push(
-    placeAxialCornerCW(Rc, Math.PI / 2, [xWallMid + Rc, yPos - Rc, z0], horizN, [-1, 0, 0]),
-  );
-
-  // ANGLE: -Y left — joins -Y horizontal run to left Y-connector.
-  // Center (xWallMid+Rc, yNeg+Rc, z0); CW from radial -Y to -X.
-  parts.push(
-    placeAxialCornerCW(Rc, Math.PI / 2, [xWallMid + Rc, yNeg + Rc, z0], horizN, [0, -1, 0]),
-  );
-
-  // -------------------------------------------------------------------------
-  // Top angles (inclined face, normal diagN) — radius TOP_CORNER_RADIUS
-  // -------------------------------------------------------------------------
-
-  // ANGLE: +Y top — joins +Y diagonal run to top Y-connector.
-  // Center inset from topConn along -diagT and -Y; CW from radial +Y toward diagT.
-  parts.push(
-    placeAxialCornerCW(
-      topRc,
-      Math.PI / 2,
-      [topConn[0] - diagT[0] * topRc, yPos - topRc, topConn[1] - diagT[2] * topRc],
-      diagN,
-      [0, 1, 0],
-    ),
-  );
-
-  // ANGLE: -Y top — joins top Y-connector to -Y diagonal run.
-  // Center inset from topConn along -diagT and +Y; CW from radial diagT toward -Y.
-  parts.push(
-    placeAxialCornerCW(
-      topRc,
-      Math.PI / 2,
-      [topConn[0] - diagT[0] * topRc, yNeg + topRc, topConn[1] - diagT[2] * topRc],
-      diagN,
-      diagT,
-    ),
-  );
 
   return union(...parts);
 }
@@ -436,7 +331,6 @@ module.exports = {
   trapezoidalRadius,
   trapezoidalRopeTrap,
   LOOP_CORNER_RADIUS,
-  TOP_CORNER_RADIUS,
   K,
   k,
 };

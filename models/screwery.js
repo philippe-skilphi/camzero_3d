@@ -122,6 +122,14 @@ function screwHoleHalfCircular({
   return subtract(base, union(holeCylinder, headCylinder));
 }
 
+function screwHoleHalfCircularWithSupportHeight({
+  bodyRadius = 2.5,
+  holeHeight = 2,
+  headHeight = 2,
+} = {}) {
+  return holeHeight + headHeight + bodyRadius * 2.5;
+}
+
 /**
  * Same as screwHoleHalfCircular, but with a support to avoid the screw to fall out.
  * Support is a 45° angle cut of the current cylinder we will put below the current part
@@ -135,7 +143,11 @@ function screwHoleHalfCircularWithSupport({
   headRadius = 3,
   thickness = 1,
 } = {}) {
-  const totalHoleHeight = holeHeight + headHeight + bodyRadius * 2.5;
+  const totalHoleHeight = screwHoleHalfCircularWithSupportHeight({
+    bodyRadius,
+    holeHeight,
+    headHeight,
+  });
 
   const headCylinder = cylinder({
     radius: headRadius,
@@ -257,6 +269,9 @@ function screwMountM2(additionalHeight) {
   });
 }
 
+/**
+ * @param {{ additionalHeight?: number, thickness?: number }} [options]
+ */
 function screwMountM2_5({ additionalHeight, thickness } = {}) {
   return screwMount({
     radius: 1.8,
@@ -320,6 +335,7 @@ module.exports = {
   screwMountHalfCircularBody,
   screwHoleHalfCircular,
   screwHoleHalfCircularWithSupport,
+  screwHoleHalfCircularWithSupportHeight,
   screwMountHalfCircularWithSupport,
   screwHole,
 };

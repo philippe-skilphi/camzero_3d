@@ -15,13 +15,18 @@ const wallThickness = 5;
 const roundedRadius = 8;
 const largeRoundedRadius = 10;
 
+// Sharp outer-bottom facet: 60° above the floor with a 4 mm vertical rise.
+const lowerFacetAngle = Math.PI / 3;
+const lowerFacetHeight = 4;
+const lowerFacetInset = lowerFacetHeight / Math.tan(lowerFacetAngle);
+const lowerFacetLength = lowerFacetHeight / Math.sin(lowerFacetAngle);
+
 const modelDimensions = {
   tangxi: {
     innerLength: 105,
     innerWidth: 54,
     innerHeight: 45,
     upperBodyInnerLength: 85,
-    upperToLowerHeightRatio: 0.4,
     usbHoleRelativeX: -36,
     usbHoleRelativeY: -15,
   },
@@ -30,7 +35,6 @@ const modelDimensions = {
     innerWidth: 50,
     innerHeight: 40,
     upperBodyInnerLength: 75,
-    upperToLowerHeightRatio: 0.333,
     usbHoleRelativeX: -32,
     usbHoleRelativeY: -17,
   },
@@ -41,7 +45,6 @@ const {
   innerWidth,
   innerHeight,
   upperBodyInnerLength,
-  upperToLowerHeightRatio,
   usbHoleRelativeX,
   usbHoleRelativeY,
 } = modelDimensions[camModel];
@@ -50,6 +53,8 @@ const upperBodyOuterLength = upperBodyInnerLength + wallThickness;
 const upperBodyCenteredLength = (upperBodyOuterLength + upperBodyInnerLength) / 2;
 
 const cameraMountHoleSpacing = 29;
+const cameraVerticalOffset = 5;
+const frontSeamCurveWidth = 42;
 
 const usbHoleScrewOuterRadius = 13.5;
 const usbHoleScrewInnerRadius = 12.5;
@@ -57,6 +62,7 @@ const usbHoleScrewInnerRadius = 12.5;
 const outerLength = innerLength + 2 * wallThickness;
 const outerWidth = innerWidth + 2 * wallThickness;
 const outerHeight = innerHeight + 2 * wallThickness;
+const facetTopZ = -outerHeight / 2 + lowerFacetHeight;
 
 const centeredWidth = (outerWidth + innerWidth) / 2;
 const centeredLength = (outerLength + innerLength) / 2;
@@ -88,11 +94,8 @@ const modelLayouts = {
     bottomScrewMount: { x: 6, y: 12 },
     raspberryPi: { x: -17, y: 10 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
-    // Proportion of outerLength; evaluated at use site with outerLength.
-    sideScrewXFactor: -0.2,
-    sideScrewXAbsolute: null,
-    // "matingFace" uses cut-path horizontal step; "splitZ" uses ratio-based split.
-    screwZStrategy: "matingFace",
+    caseScrewX: [-0.2 * outerLength, 16.25],
+    frontSeamDip: 2,
     cameraCapTranslate: [10, 0, 3],
     capScrewX: [19, -11],
     cameraMountCall: { innerLength: innerLength / 2, totalHeight: 13 },
@@ -105,9 +108,8 @@ const modelLayouts = {
     bottomScrewMount: { x: 6, y: 16 },
     raspberryPi: { x: -15, y: 5 },
     usbHole: { x: usbHoleRelativeX, y: usbHoleRelativeY },
-    sideScrewXFactor: null,
-    sideScrewXAbsolute: -20,
-    screwZStrategy: "splitZ",
+    caseScrewX: [-20, 15.67],
+    frontSeamDip: 4.25,
     cameraCapTranslate: [12, 0, 3],
     capScrewX: [17, -13],
     cameraMountCall: null,
@@ -117,17 +119,9 @@ const modelLayouts = {
 
 const layout = modelLayouts[camModel];
 
-function sideScrewX() {
-  if (layout.sideScrewXAbsolute != null) {
-    return layout.sideScrewXAbsolute;
-  }
-  return layout.sideScrewXFactor * outerLength;
-}
-
 module.exports = {
   camModel,
   layout,
-  sideScrewX,
   segments,
   threadSegmentsPerRotation,
   innerLength,
@@ -136,7 +130,13 @@ module.exports = {
   wallThickness,
   roundedRadius,
   largeRoundedRadius,
+  lowerFacetAngle,
+  lowerFacetHeight,
+  lowerFacetInset,
+  lowerFacetLength,
   cameraMountHoleSpacing,
+  cameraVerticalOffset,
+  frontSeamCurveWidth,
   usbHoleRelativeX,
   usbHoleRelativeY,
   usbHoleScrewOuterRadius,
@@ -144,6 +144,7 @@ module.exports = {
   outerLength,
   outerWidth,
   outerHeight,
+  facetTopZ,
   centeredWidth,
   centeredLength,
   centeredHeight,
@@ -162,5 +163,4 @@ module.exports = {
   upperBodyInnerLength,
   upperBodyOuterLength,
   upperBodyCenteredLength,
-  upperToLowerHeightRatio,
 };

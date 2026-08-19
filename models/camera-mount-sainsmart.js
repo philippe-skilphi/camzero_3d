@@ -12,7 +12,7 @@ const {
 } = require("./constants");
 const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
-function cameraMount() {
+function cameraMount({ zOffset = 0 } = {}) {
   const width = 21;
   const height = 13.5;
 
@@ -21,38 +21,41 @@ function cameraMount() {
     union(
       subtract(
         cuboid({ size: [6, 40, innerHeight] }),
-        rotate([0, Math.PI / 2, 0], cylinder({ radius: 9, height: 10 })),
         translate(
-          [1, width / 2, height / 2],
+          [0, 0, zOffset],
+          rotate([0, Math.PI / 2, 0], cylinder({ radius: 9, height: 10 })),
+        ),
+        translate(
+          [1, width / 2, height / 2 + zOffset],
           rotate([0, Math.PI / 2, Math.PI], cylinder({ radius: 2, height: 10 })),
         ),
         translate(
-          [1, -width / 2, height / 2],
+          [1, -width / 2, height / 2 + zOffset],
           rotate([0, Math.PI / 2, Math.PI], cylinder({ radius: 2, height: 10 })),
         ),
         translate(
-          [1, width / 2, -height / 2],
+          [1, width / 2, -height / 2 + zOffset],
           rotate([0, Math.PI / 2, Math.PI], cylinder({ radius: 2, height: 10 })),
         ),
         translate(
-          [1, -width / 2, -height / 2],
+          [1, -width / 2, -height / 2 + zOffset],
           rotate([0, Math.PI / 2, Math.PI], cylinder({ radius: 2, height: 10 })),
         ),
       ),
       translate(
-        [1, width / 2, height / 2],
+        [1, width / 2, height / 2 + zOffset],
         rotate([0, Math.PI / 2, Math.PI], screwMountM2()),
       ),
       translate(
-        [1, -width / 2, height / 2],
+        [1, -width / 2, height / 2 + zOffset],
         rotate([0, Math.PI / 2, Math.PI], screwMountM2()),
       ),
       translate(
-        [1, width / 2, -height / 2],
+        [1, width / 2, -height / 2 + zOffset],
         rotate([0, Math.PI / 2, Math.PI], screwMountM2()),
       ),
       translate(
-        [1, -width / 2, -height / 2],
+        [1, -width / 2, -height / 2 + zOffset],
         rotate([0, Math.PI / 2, Math.PI], screwMountM2()),
       ),
     ),
