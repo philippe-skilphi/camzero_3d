@@ -14,26 +14,48 @@ const {
 } = require("./constants");
 const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
-function cameraMount({ innerLength, totalHeight = 18 } = {}) {
+function cameraMount({ innerLength, totalHeight = 18, zOffset = 0 } = {}) {
   const additionalHeight = totalHeight - 4;
+  const supportHeight =
+    (centeredHeight - cameraMountHoleSpacing) / 2 -
+    wallThickness +
+    zOffset;
+  const supportCenterZ =
+    -innerHeight / 2 + wallThickness - 1 + zOffset / 2;
 
   console.log([innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2]);
 
   let body = union(
     translate(
-      [innerLength, cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2],
+      [
+        innerLength,
+        cameraMountHoleSpacing / 2,
+        cameraMountHoleSpacing / 2 + zOffset,
+      ],
       rotate([0, -Math.PI / 2, 0], screwMountM2(additionalHeight)),
     ),
     translate(
-      [innerLength, -cameraMountHoleSpacing / 2, cameraMountHoleSpacing / 2],
+      [
+        innerLength,
+        -cameraMountHoleSpacing / 2,
+        cameraMountHoleSpacing / 2 + zOffset,
+      ],
       rotate([0, -Math.PI / 2, 0], screwMountM2(additionalHeight)),
     ),
     translate(
-      [innerLength, cameraMountHoleSpacing / 2, -cameraMountHoleSpacing / 2],
+      [
+        innerLength,
+        cameraMountHoleSpacing / 2,
+        -cameraMountHoleSpacing / 2 + zOffset,
+      ],
       rotate([0, -Math.PI / 2, 0], screwMountM2(additionalHeight)),
     ),
     translate(
-      [innerLength, -cameraMountHoleSpacing / 2, -cameraMountHoleSpacing / 2],
+      [
+        innerLength,
+        -cameraMountHoleSpacing / 2,
+        -cameraMountHoleSpacing / 2 + zOffset,
+      ],
       rotate([0, -Math.PI / 2, 0], screwMountM2(additionalHeight)),
     ),
     // Add lower support cuboid to support the camera mount
@@ -41,29 +63,29 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       size: [
         totalHeight - 2,
         5,
-        (centeredHeight - cameraMountHoleSpacing) / 2 - wallThickness,
+        supportHeight,
       ],
       center: [
         innerLength - totalHeight / 2,
         -cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness - 1,
+        supportCenterZ,
       ],
     }),
     cuboid({
       size: [
         totalHeight - 2,
         5,
-        (centeredHeight - cameraMountHoleSpacing) / 2 - wallThickness,
+        supportHeight,
       ],
       center: [
         innerLength - totalHeight / 2,
         cameraMountHoleSpacing / 2,
-        -innerHeight / 2 + wallThickness - 1,
+        supportCenterZ,
       ],
     }),
     subtract(
       translate(
-        [innerLength - totalHeight / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, zOffset],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
@@ -75,7 +97,7 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
         ),
       ),
       translate(
-        [innerLength - totalHeight / 2, 0, 0],
+        [innerLength - totalHeight / 2, 0, zOffset],
         rotate(
           [0, Math.PI / 2, 0],
           cylinder({
@@ -88,11 +110,19 @@ function cameraMount({ innerLength, totalHeight = 18 } = {}) {
       ),
       cuboid({
         size: [totalHeight, cameraMountHoleSpacing + 10, 8],
-        center: [innerLength - totalHeight / 2, 0, -cameraMountHoleSpacing / 2 - 2],
+        center: [
+          innerLength - totalHeight / 2,
+          0,
+          -cameraMountHoleSpacing / 2 - 2 + zOffset,
+        ],
       }),
       cuboid({
         size: [totalHeight, cameraMountHoleSpacing + 10, 8],
-        center: [innerLength - totalHeight / 2, 0, cameraMountHoleSpacing / 2 + 2],
+        center: [
+          innerLength - totalHeight / 2,
+          0,
+          cameraMountHoleSpacing / 2 + 2 + zOffset,
+        ],
       }),
     ),
   );
