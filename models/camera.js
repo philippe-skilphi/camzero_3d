@@ -421,8 +421,8 @@ module.exports.main = () => {
       translate([-150, 100, 40], lowerBodyWithJoint()),
     );
   }
-
-  return translate([0, 0, 50], upperBodyWithCap());
+  return translate([0, 70, 10], thread2Parts())
+  // return translate([0, 0, 50], upperBodyWithCap());
   // return printAllChecks();
-  // return printable();
+  return printable();
 };
