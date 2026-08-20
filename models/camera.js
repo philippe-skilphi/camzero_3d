@@ -40,11 +40,10 @@ const {
 } = require("./screw-thread");
 const { cameraCap } = require("./camera-cap");
 const {
-  trapezoidalSegment,
   trapezoidalRopeTrap,
 } = require("./trapezoidal-rope");
-const { additionalCardsMount } = require("./additional-cards-mount");
 
+const { m14MastAdapter } = require("./m14-mast-adapter");
 const {
   camModel,
   layout,
@@ -396,11 +395,12 @@ module.exports.main = () => {
         [0, innerWidth * 2, outerHeight / 2],
         rotate([0, Math.PI, Math.PI], upperBody()),
       ),
-      translate([50, 0, 0], rotate([0, 0, 0], capPiece)),
+      translate([50, -20, 0], rotate([0, 0, 0], capPiece)),
       translate(
         [-50, 0, cameraCapHeight - 1],
         rotate([0, Math.PI, Math.PI], cameraCap()),
       ),
+      translate([50, 20, 0], m14MastAdapter()),
     );
   }
 
@@ -433,11 +433,13 @@ module.exports.main = () => {
       translate([-150, 0, 40], union(lowerBodyWithJoint(), upperBodyWithCap())),
       translate([-150, -100, 25], upperBody()),
       translate([-150, 100, 40], lowerBodyWithJoint()),
+      translate([0, 100, 20], m14MastAdapter()),
     );
   }
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBodyWithCap());
   // return printAllChecks(); 
+  // return m14MastAdapter();
 
   return printable();
 };
