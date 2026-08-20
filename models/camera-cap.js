@@ -55,8 +55,18 @@ function cameraCap() {
     ],
   });
 
-  body = subtract(body, cutAngleBody);
+  const cutBackBody = cuboid({
+    size: [10, cameraCapOuterWidth, cameraCapHeight],
+    center: [
+      -cameraCapBottomLength / 2 - layout.cutFrontBodyOffset -5,
+      0,
+      cameraCapHeight / 2,
+    ],
+  });
+
+  body = subtract(body, cutAngleBody,);
   body = subtract(body, cutFrontBody);
+  body = subtract(body, cutBackBody);
 
   // Add 4 M2.5 screw holes on the bottom side to support the cap.
   const capScrewMounts = union(
@@ -66,7 +76,7 @@ function cameraCap() {
     ),
     translate(
       [
-        -15,
+        -30,
         capDistanceToBody + outerWidth / 2,
         outerHeight / 4 - capThickness,
       ],
@@ -82,7 +92,7 @@ function cameraCap() {
     ),
     translate(
       [
-        -15,
+        -30,
         -(outerWidth / 2) - capDistanceToBody,
         outerHeight / 4 - capThickness,
       ],
