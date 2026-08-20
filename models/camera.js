@@ -422,7 +422,7 @@ module.exports.main = () => {
     );
   }
 
-  // return translate([0, 0, 50], lowerBodyWithJoint());
-  return printAllChecks();
+  return translate([0, 0, 50], upperBodyWithCap());
+  // return printAllChecks();
   // return printable();
 };

@@ -67,9 +67,10 @@ const ropeDimensions = { centeredLength, centeredWidth, centeredHeight };
 const capDistanceToBody = 9;
 const capThickness = 3;
 const capFrontOverflow = 10;
+const capBackOverflow = 10;
 
-const cameraCapTopLength = outerLength + capFrontOverflow;
-const cameraCapBottomLength = outerLength;
+const cameraCapTopLength = outerLength + capFrontOverflow + capBackOverflow;
+const cameraCapBottomLength = outerLength + capBackOverflow;
 const cameraCapOuterWidth = outerWidth + 2 * (capDistanceToBody + capThickness);
 const cameraCapInnerWidth = cameraCapOuterWidth - 2 * capThickness;
 const cameraCapHeight = outerHeight / 2 + 5;
@@ -105,8 +106,8 @@ const modelLayouts = {
     usbHole: { x: -35, y: -16 },
     caseScrewX: [-20, 15.67],
     frontSeamDip: 4.25,
-    cameraCapTranslate: [12, 0, 3],
-    capScrewX: [17, -13],
+    cameraCapTranslate: [2, 0, 3],
+    capScrewX: [20, -10],
     cameraMountCall: null,
     cutFrontBodyOffset: 1,
     // additionalCardsMount: { x: -8.5, y: -8 },
