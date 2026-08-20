@@ -42,6 +42,7 @@ const {
   trapezoidalSegment,
   trapezoidalRopeTrap,
 } = require("./trapezoidal-rope");
+const { additionalCardsMount } = require("./additional-cards-mount");
 
 const {
   camModel,
@@ -315,6 +316,12 @@ module.exports.main = () => {
       caseSeparationZ(),
     );
 
+    // ADS1115 and RTC mounts
+    // const ads1115AndRtcMounts = translate(
+    //   [layout.additionalCardsMount.x, layout.additionalCardsMount.y, -innerHeight / 2],
+    //   additionalCardsMount(),
+    // );
+
     return union(body, caseScrewMounts);
   }
 
@@ -416,6 +423,6 @@ module.exports.main = () => {
   }
 
   // return translate([0, 0, 50], lowerBodyWithJoint());
-  // return printAllChecks();
-  return printable();
+  return printAllChecks();
+  // return printable();
 };
