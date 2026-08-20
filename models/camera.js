@@ -1,5 +1,5 @@
 const {
-  primitives: { roundedCuboid, roundedRectangle, cylinder, cuboid, torus },
+  primitives: { roundedCuboid, roundedRectangle, cylinder, cuboid, torus, rectangle },
   booleans: { intersect, subtract, union },
   transforms: { translate, rotate, center, transform },
   measurements: { measureArea, measureBoundingBox },
@@ -24,6 +24,7 @@ const {
   Hexagon,
   caseSeparationZ,
   getFrontSeamCurvePoints,
+  thermalReliefShape,
 } = require("./utils");
 
 const { cameraMount: cameraMountTangxi } = require("./camera-mount-tangxi");
@@ -342,7 +343,7 @@ module.exports.main = () => {
       caseSeparationZ() + 6,
     );
 
-    // Now we need to add 2 M2.5 screw mounts  on each side to support the cap.
+    // We need to add 2 M2.5 screw mounts  on each side to support the cap.
     // We also need to provide 45° edge support for 3d printing convenience.
     // In this case we need to add support on the top of the screw mounts.
     // Because we will print that piece upside down.....
@@ -366,6 +367,19 @@ module.exports.main = () => {
         rotate([Math.PI / 2, 0, 0], screwMountM2_5({ additionalHeight: 5 })),
       ),
     );
+
+    // Add some thermal reliefs on the inner side of the upper body.
+    // They should be oriented on the Y axis, be 2mm wide and 5mm tall.
+
+    const thermalReliefs = union(
+        translate([-40, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+        translate([-28, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+        translate([-16, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+        translate([-4, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+        translate([8, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+        translate([20, 0, innerHeight / 2 - 9], rotate([-Math.PI / 2, 0, 0], rotate([0, Math.PI / 2, 0], thermalReliefShape()))),
+    )
+    body = union(body, thermalReliefs);
 
     return union(body, caseScrewMounts, capScrewMounts);
   }
@@ -421,8 +435,9 @@ module.exports.main = () => {
       translate([-150, 100, 40], lowerBodyWithJoint()),
     );
   }
-  return translate([0, 70, 10], thread2Parts())
+  // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBodyWithCap());
-  // return printAllChecks();
+  // return printAllChecks(); 
+
   return printable();
 };

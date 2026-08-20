@@ -3,6 +3,8 @@ const {
   extrusions: { extrudeLinear },
   maths: { vec2 },
   measurements: { measureBoundingBox },
+  primitives: { roundedRectangle, rectangle },
+  booleans: { subtract },
 } = require("@jscad/modeling");
 const {
   facetTopZ,
@@ -10,6 +12,8 @@ const {
   layout,
   outerHeight,
   segments,
+  roundedRadius,
+  innerWidth,
 } = require("./constants");
 const {
   screwHoleHalfCircularWithSupportHeight,
@@ -91,6 +95,15 @@ function getFrontSeamCurvePoints(segmentCount = Math.max(12, segments)) {
   return points;
 }
 
+function thermalReliefShape() {
+  const thermalReliefShape = roundedRectangle({ size: [innerWidth, 20], roundRadius: roundedRadius });
+  // const toRemove = rectangle({ size: [innerWidth, 14], center: [0, 5] });
+  const toRemove = roundedRectangle({ size: [innerWidth, 16], center: [0, 5], roundRadius: 6 });
+  const thermalRelief = subtract(thermalReliefShape, toRemove);
+  const thermalReliefBody = extrudeLinear({ height: 2 }, thermalRelief);
+  return thermalReliefBody;
+}
+
 module.exports = {
   getVec2RoundedPoints,
   caseSeparationZ,
@@ -101,4 +114,5 @@ module.exports = {
   Hexagon,
   lowerBodyOuterHeight,
   getSizes,
+  thermalReliefShape,
 };
