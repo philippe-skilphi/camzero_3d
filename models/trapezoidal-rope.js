@@ -1,6 +1,6 @@
 const {
   geometries: { geom2 },
-  extrusions: { extrudeLinear, extrudeRotate },
+  extrusions: { extrudeFromSlices, extrudeLinear, extrudeRotate, slice },
   maths: { vec2, vec3, mat4 },
   transforms: { translate, transform },
   booleans: { union },
@@ -16,6 +16,7 @@ const {
 } = require("./constants");
 const {
   caseSeparationZ,
+  frontSeamSlopeAtY,
   getFrontSeamCurvePoints,
   getVec2RoundedPoints,
 } = require("./utils");
@@ -164,27 +165,59 @@ function cross3(a, b) {
 }
 
 /**
- * Place a local extrusion (extrude +Z, opening +Y / depth -Y) into world space:
- * extrude along `tangent`, opening facing `normal`, depth into -normal.
+ * Right-handed frame: local +Z along `tangent`, +Y along `normal` (opening),
+ * +X = normal × tangent (groove width). Depth is −normal.
  */
-function placeOriented(geom, origin, tangent, normal) {
+function orientedMatrix(origin, tangent, normal) {
   const zAxis = normalize3(tangent);
   const yAxis = normalize3(normal);
   const xAxis = cross3(yAxis, zAxis);
   if (vec3.length(xAxis) < 1e-9) {
-    throw new Error("placeOriented: tangent and normal are parallel");
+    throw new Error("orientedMatrix: tangent and normal are parallel");
   }
   vec3.normalize(xAxis, xAxis);
   vec3.cross(zAxis, xAxis, yAxis);
   vec3.normalize(zAxis, zAxis);
 
-  const m = mat4.fromValues(
+  return mat4.fromValues(
     xAxis[0], xAxis[1], xAxis[2], 0,
     yAxis[0], yAxis[1], yAxis[2], 0,
     zAxis[0], zAxis[1], zAxis[2], 0,
     origin[0], origin[1], origin[2], 1,
   );
-  return transform(m, geom);
+}
+
+/**
+ * Place a local extrusion (extrude +Z, opening +Y / depth -Y) into world space:
+ * extrude along `tangent`, opening facing `normal`, depth into -normal.
+ */
+function placeOriented(geom, origin, tangent, normal) {
+  return transform(orientedMatrix(origin, tangent, normal), geom);
+}
+
+/**
+ * Sweep the trapezoidal profile along the front seam as one lofted solid.
+ * Chord-by-chord right prisms leave miter wedges at every polyline vertex;
+ * those become hairline walls after subtract. Lofted slices stay watertight.
+ */
+function frontSeamCurveTrap(xExtent) {
+  const curvePoints = getFrontSeamCurvePoints();
+  const base = slice.fromSides(geom2.toSides(trapezoidal2D(FACE_OVERSHOOT)));
+
+  return extrudeFromSlices(
+    {
+      numberOfSlices: curvePoints.length,
+      callback: (_progress, index, baseSlice) => {
+        const [y, z] = curvePoints[index];
+        const slope = frontSeamSlopeAtY(y);
+        return slice.transform(
+          orientedMatrix([xExtent, y, z], [0, 1, slope], [0, -slope, 1]),
+          baseSlice,
+        );
+      },
+    },
+    base,
+  );
 }
 
 /**
@@ -304,23 +337,8 @@ function trapezoidalRopeTrap() {
       normal,
       [0, -1, 0],
     ),
+    frontSeamCurveTrap(xExtent),
   ];
-
-  const curvePoints = getFrontSeamCurvePoints();
-  for (let index = 0; index < curvePoints.length - 1; index++) {
-    const [y0, z0] = curvePoints[index];
-    const [y1, z1] = curvePoints[index + 1];
-    const dy = y1 - y0;
-    const dz = z1 - z0;
-    parts.push(
-      placeOriented(
-        segment(Math.hypot(dy, dz)),
-        [xExtent, y0, z0],
-        [0, dy, dz],
-        [0, -dz, dy],
-      ),
-    );
-  }
 
   return union(...parts);
 }
