@@ -107,7 +107,7 @@ const modelLayouts = {
     caseScrewX: [-20, 15.67],
     frontSeamDip: 4.25,
     cameraCapTranslate: [2, 0, 3],
-    capScrewX: [20, -10],
+    capScrewX: [20, -25],
     cameraMountCall: null,
     cutFrontBodyOffset: 1,
     // additionalCardsMount: { x: -8.5, y: -8 },
