@@ -1,3 +1,39 @@
 ---
 alwaysApply: true
 ---
+This project is a 3D printed camera case.
+It is designed using openJsCad V2
+Documentation is available: https://openjscad.xyz/v2/dokuwiki/doku.php?id=en:start
+
+# Parts
+
+Case is made of 4 parts:
+- Lower body is the most complex part. This is where most of the camera components will sit. It also contains a trapezoidal trap for a 2mm joint rope all around the lower body to upper body shape. 
+- Upper body just comes to close the case over the lowe Body. It just contains a hole for the camera cap to be inserted.
+- Camera cap comes on top of the upper body. It protects camera sensor from direct sun exposure and also provide a thermic shielding.
+- USB Bottle cap is a simple part that comes to close the case over the USB port.
+
+# Variants
+
+There are 2 variants of the case:
+- Tangxi camera
+- Sainsmart camera
+
+Sainsmart sensor has a smaller PCB than Tangxi sensor.
+
+# Files
+
+./models contains all the models for the case.
+
+./models/camera.js is the main files, that's the one that reuses all the other models to build the final case.
+
+All other files are self-explanatory based on their names.
+
+models/constants.js contains all the constants for the case.
+models/utils.js contains all the utility functions for the case.
+
+Some files are not actively used but are kept here because they might be useful in the future.
+* models/additional-cards-mount.js
+* models/rope.js
+
+

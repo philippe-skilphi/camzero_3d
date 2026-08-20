@@ -1,5 +1,5 @@
 const {
-  primitives: { polygon, cylinder, cylinderElliptic, cuboid },
+  primitives: { polygon, cylinder, cylinderElliptic, cuboid, torus },
   booleans: { union, subtract },
   transforms: { translate, rotate },
   extrusions: { extrudeHelical },
@@ -109,7 +109,7 @@ function capLeadInChamfer({
   segments = CYLINDER_SEGMENTS,
 } = {}) {
   const outer = cylinderElliptic({
-    startRadius: [boreRadius + 0.5, boreRadius + 0.5],
+    startRadius: [boreRadius - 0.2, boreRadius - 0.2],
     endRadius: [boreRadius, boreRadius],
     height,
     segments,
@@ -225,9 +225,16 @@ function bottleCap(opts = {}) {
     }),
   );
 
+  // Toric joint to put at the base of the thread to avoid squeezing too much and enhance water tightness.
+  const toricJoint = torus({
+    innerRadius: 1,
+    outerRadius: 13.3,
+  });
+
   // return thread;
   // return union(core, flange);
   let neck = union(flange, core, thread);
+  neck = subtract(neck, translate([0, 0, flangeHeight], toricJoint));
   // let neck = union(flange, core);
 
   // Add a lead in chamfer to the neck to make it easier to insert the screw.
