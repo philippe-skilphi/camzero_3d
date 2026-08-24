@@ -43,7 +43,7 @@ function m14MastAdapter() {
   body = union(body,  translate([0, 0, 27.5], rotate([0, Math.PI, 0], screwMount1_4(2.5))));
 
   // Cylindric extrusion 1mm inside the mast trap
-  const extrusionBody = translate([0, 0, - trapHeight / 2 + headerHeight], 
+  const extrusionBody = translate([0, 0, - trapHeight / 1.4 + headerHeight], 
   subtract(
     cylinder({ radius: mastRadius + trapTolerance * 2 + trapThickness + 10, height: 10, segments: segments }),
     cylinder({ radius: mastRadius + trapTolerance * 2 + trapThickness - 1, height: 10, segments: segments })

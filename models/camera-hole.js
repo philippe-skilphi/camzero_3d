@@ -5,6 +5,8 @@ const {
 } = require("@jscad/modeling");
 
 const { segments } = require("./constants");
+const { cuboid } = require("@jscad/modeling/src/primitives");
+const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
 function cameraHole33mm() {
   return cameraHole({
@@ -36,11 +38,14 @@ function cameraHole30mm() {
 function cameraHole35mm() {
   return rotate(
     [0, Math.PI, 0],
-    cameraHole({
-      outerRadius: 18,
-      innerRadius: 14.3,
-      height: 4,
-    }),
+    subtract(
+      cameraHole({
+        outerRadius: 18,
+        innerRadius: 14.3,
+        height: 4,
+      }),
+      cuboid({ size: [1, 1, 4], center: [0, 17.5, 0] }),
+    ),
   );
 }
 
