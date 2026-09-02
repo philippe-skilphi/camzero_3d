@@ -6,7 +6,7 @@ const { screwMountM2_5 } = require("./screwery");
 
 const raspberryPi0Length = 58;
 const raspberryPi0Width = 23;
-const additionalHeight = 5;
+const additionalHeight = 6;
 const thickness = 2;
 
 function raspberryZeroMount() {

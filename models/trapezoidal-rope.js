@@ -30,7 +30,7 @@ const {
 const K = 1.75;
 
 /** k — groove depth from the mating face into the solid (mm). */
-const k = 1.4;
+const k = 1.2;
 
 /** R — fillet radius at the two bottom (wide) corners of the groove (mm). */
 const R = 0.2;

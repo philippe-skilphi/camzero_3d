@@ -303,7 +303,7 @@ function screwMount1_4(additionalHeight) {
   additionalHeight = additionalHeight ?? 1;
   const holeDepth = 12.7;
   const piece = screwMount({
-    radius: 3.8,
+    radius: 4.2,
     height: holeDepth,
     thickness: 6,
     additionalHeight: additionalHeight,

@@ -31,7 +31,7 @@ const modelDimensions = {
   sainsmart: {
     innerLength: 105,
     innerWidth: 55,
-    innerHeight: 40,
+    innerHeight: 42,
     upperBodyInnerLength: 75,
   },
 };
@@ -64,7 +64,7 @@ const centeredHeight = (outerHeight + innerHeight) / 2;
 
 const ropeDimensions = { centeredLength, centeredWidth, centeredHeight };
 
-const capDistanceToBody = 9;
+const capDistanceToBody = 4;
 const capThickness = 3;
 const capFrontOverflow = 10;
 const capBackOverflow = 10;
@@ -83,7 +83,7 @@ const usbEnclosureInnerRadius = 12;
 /** Placement offsets and strategies that differ between camera models. */
 const modelLayouts = {
   tangxi: {
-    gx12: { x: -6, y: -18 },
+    sp13: { x: -6, y: -18 },
     hasPowerConverter: true,
     powerConverter: { x: 16, y: -18 },
     bottomScrewMount: { x: 6, y: 12 },
@@ -98,16 +98,16 @@ const modelLayouts = {
     // additionalCardsMount: { x: -30, y: -6.5 },
   },
   sainsmart: {
-    gx12: { x: 28, y: -16 },
+    sp13: { x: 28, y: -16 },
     hasPowerConverter: true,
     powerConverter: { x: -4, y: -17 },
     bottomScrewMount: { x: 26, y: 18 },
     raspberryPi: { x: -16, y: 10 },
     usbHole: { x: -35, y: -16 },
-    caseScrewX: [-25, 25],
+    caseScrewX: [-15, 40],
     frontSeamDip: 4.25,
     cameraCapTranslate: [2, 0, 3],
-    capScrewX: [20, -10],
+    capScrewX: [20, -25],
     cameraMountCall: null,
     cutFrontBodyOffset: 1,
     // additionalCardsMount: { x: -8.5, y: -8 },

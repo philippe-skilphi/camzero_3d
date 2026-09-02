@@ -1,6 +1,6 @@
 const {
   primitives: { roundedCuboid, roundedRectangle, cylinder, cuboid, torus, rectangle },
-  booleans: { intersect, subtract, union },
+  booleans: { subtract, union },
   transforms: { translate, rotate, center, transform },
   measurements: { measureArea, measureBoundingBox },
   geometries: { geom2 },
@@ -79,7 +79,8 @@ module.exports.main = () => {
   function facetedOuterBody() {
     const bottomZ = -outerHeight / 2;
     const facetTopZ = bottomZ + lowerFacetHeight;
-    const topRoundStartZ = outerHeight / 2 - roundedRadius;
+    const topZ = outerHeight / 2;
+    const topFacetBottomZ = topZ - lowerFacetHeight;
 
     const fullFootprint = roundedRectangle({
       size: [outerLength, outerWidth],
@@ -103,31 +104,18 @@ module.exports.main = () => {
         profileSlice,
       );
 
-    const lowerAndVertical = extrudeFromSlices(
+    return extrudeFromSlices(
       {
-        numberOfSlices: 3,
+        numberOfSlices: 4,
         callback: (_progress, index) => {
           if (index === 0) return atZ(bottomSlice, bottomZ);
           if (index === 1) return atZ(fullSlice, facetTopZ);
-          return atZ(fullSlice, topRoundStartZ);
+          if (index === 2) return atZ(fullSlice, topFacetBottomZ);
+          return atZ(bottomSlice, topZ);
         },
       },
       bottomSlice,
     );
-
-    const roundedTop = intersect(
-      roundedCuboid({
-        size: [outerLength, outerWidth, outerHeight],
-        roundRadius: roundedRadius,
-        segments,
-      }),
-      cuboid({
-        size: [outerLength + 2, outerWidth + 2, roundedRadius],
-        center: [0, 0, outerHeight / 2 - roundedRadius / 2],
-      }),
-    );
-
-    return union(lowerAndVertical, roundedTop);
   }
 
   function fullBody() {
@@ -209,19 +197,19 @@ module.exports.main = () => {
     // let body = union(lowerBody(), trapezoidalRopeTrap());
 
     // SP13 bottom hole.
-    // I kept Gx12 vars
+    // I kept Sp13 vars
     //TODO: Change to SP13 vars
-    const { x: Gx12XOffset, y: Gx12YOffset } = layout.gx12;
-    const gx12BottomHole = translate(
-      [Gx12XOffset, Gx12YOffset, -outerHeight / 2],
+    const { x: Sp13XOffset, y: Sp13YOffset } = layout.sp13;
+    const sp13BottomHole = translate(
+      [Sp13XOffset, Sp13YOffset, -outerHeight / 2],
       cylinder({ radius: 6.6, height: 10, segments }),
     );
-    // Gx12 hex hole for nut
-    const gx12HexHole = translate(
-      [Gx12XOffset, Gx12YOffset, -2 - innerHeight / 2],
-      Hexagon(20.5, 10),
+    // Sp13 hex hole for nut
+    const sp13HexHole = translate(
+      [Sp13XOffset, Sp13YOffset, -2 - innerHeight / 2],
+      Hexagon(22.5, 10),
     );
-    body = subtract(body, gx12BottomHole, gx12HexHole);
+    body = subtract(body, sp13BottomHole, sp13HexHole);
 
     // Power converter mount
     if (layout.hasPowerConverter) {  
@@ -311,10 +299,19 @@ module.exports.main = () => {
     });
     body = union(body, sensorScrewMount);
 
+
+    // Case screws on sides
     const caseScrewMounts = sideCaseFasteners(
       screwHoleHalfCircularWithSupport,
       caseSeparationZ(),
     );
+
+    // One case screw on the back side
+    const backCaseScrewMount = translate(
+      [-outerLength / 2, 0, caseSeparationZ()],
+      rotate([Math.PI, 0, Math.PI], screwHoleHalfCircularWithSupport()),
+    );
+    body = union(body, backCaseScrewMount);
 
     // ADS1115 and RTC mounts
     // const ads1115AndRtcMounts = translate(
@@ -336,10 +333,17 @@ module.exports.main = () => {
     let body = subtract(fullBody(), lowerBody());
     body = subtract(body, cameraCutout());
 
+    // One case screw on the back side
+    const backCaseScrewMount = translate(
+      [-outerLength / 2, 0, caseSeparationZ() + 6.2],
+      rotate([Math.PI, 0, Math.PI], screwMountHalfCircularWithSupport()),
+    );
+    body = union(body, backCaseScrewMount);
+
     // Case screw mounts on the top side, face down to limit water ingress.
     const caseScrewMounts = sideCaseFasteners(
       screwMountHalfCircularWithSupport,
-      caseSeparationZ() + 6,
+      caseSeparationZ() + 6.2,
     );
 
     // We need to add 2 M2.5 screw mounts  on each side to support the cap.
@@ -351,19 +355,19 @@ module.exports.main = () => {
     const capScrewMounts = union(
       translate(
         [capScrewXPos, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({ additionalHeight: 5 })),
+        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5()),
       ),
       translate(
         [capScrewXNeg, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({ additionalHeight: 5 })),
+        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5()),
       ),
       translate(
         [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5({ additionalHeight: 5 })),
+        rotate([Math.PI / 2, 0, 0], screwMountM2_5()),
       ),
       translate(
         [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5({ additionalHeight: 5 })),
+        rotate([Math.PI / 2, 0, 0], screwMountM2_5()),
       ),
     );
 
@@ -436,10 +440,11 @@ module.exports.main = () => {
       translate([0, 100, 20], m14MastAdapter()),
     );
   }
+
+  // return translate([0,0, 40], lowerBodyWithJoint())
   // return translate([0, 70, 10], thread2Parts())
-  // return translate([0, 0, 50], upperBodyWithCap());
+  // return translate([0, 0, 50], upperBody());
   // return printAllChecks(); 
   // return m14MastAdapter();
-
   return printable();
 };
