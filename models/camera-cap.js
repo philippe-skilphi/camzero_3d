@@ -27,20 +27,6 @@ const { facetedRoundedCuboid } = require("./faceted-rounded-cuboid");
 
 function cameraCap() {
 
-  console.log("cameraCapTopLength", cameraCapTopLength);
-  console.log("cameraCapBottomLength", cameraCapBottomLength);
-  console.log("cameraCapHeight", cameraCapHeight);
-  console.log("cameraCapOuterWidth", cameraCapOuterWidth);
-  console.log("cameraCapInnerWidth", cameraCapInnerWidth);
-  console.log("capDistanceToBody", capDistanceToBody);
-  console.log("capThickness", capThickness);
-  console.log("roundedRadius", roundedRadius);
-  console.log("outerLength", outerLength);
-  console.log("outerWidth", outerWidth);
-  console.log("outerHeight", outerHeight);
-  console.log("layout", layout);
-    
-
   let body = facetedRoundedCuboid({
     size: [cameraCapTopLength, cameraCapOuterWidth, cameraCapHeight - 3],
     center: [0, 0, cameraCapHeight / 2],

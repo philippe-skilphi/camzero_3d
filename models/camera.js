@@ -324,19 +324,19 @@ module.exports.main = () => {
     const capScrewMounts = union(
       translate(
         [capScrewXPos, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5()),
+        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
       ),
       translate(
         [capScrewXNeg, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5()),
+        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
       ),
       translate(
         [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5()),
+        rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
       ),
       translate(
         [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5()),
+        rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
       ),
     );
 
@@ -416,5 +416,5 @@ module.exports.main = () => {
   // return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
-  return printable();
+  // return printable();
 };
