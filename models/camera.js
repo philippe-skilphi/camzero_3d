@@ -1,11 +1,11 @@
 const {
-  primitives: { roundedCuboid, roundedRectangle, cylinder, cuboid, torus, rectangle },
+  primitives: { roundedCuboid, cylinder, cuboid, torus, rectangle },
   booleans: { subtract, union },
   transforms: { translate, rotate, center, transform },
   measurements: { measureArea, measureBoundingBox },
   geometries: { geom2 },
   maths: { mat4, vec2 },
-  extrusions: { extrudeFromSlices, extrudeLinear, slice },
+  extrusions: { extrudeLinear },
 } = require("@jscad/modeling");
 
 const { ropeJoint, ropeJointAngle } = require("./rope");
@@ -42,6 +42,7 @@ const { cameraCap } = require("./camera-cap");
 const {
   trapezoidalRopeTrap,
 } = require("./trapezoidal-rope");
+const { facetedRoundedCuboid } = require("./faceted-rounded-cuboid");
 
 const { m14MastAdapter } = require("./m14-mast-adapter");
 const {
@@ -77,45 +78,13 @@ const cameraMount =
 
 module.exports.main = () => {
   function facetedOuterBody() {
-    const bottomZ = -outerHeight / 2;
-    const facetTopZ = bottomZ + lowerFacetHeight;
-    const topZ = outerHeight / 2;
-    const topFacetBottomZ = topZ - lowerFacetHeight;
-
-    const fullFootprint = roundedRectangle({
-      size: [outerLength, outerWidth],
+    return facetedRoundedCuboid({
+      size: [outerLength, outerWidth, outerHeight],
       roundRadius: roundedRadius,
+      facetHeight: lowerFacetHeight,
+      facetInset: lowerFacetInset,
       segments,
     });
-    const bottomFootprint = roundedRectangle({
-      size: [
-        outerLength - 2 * lowerFacetInset,
-        outerWidth - 2 * lowerFacetInset,
-      ],
-      roundRadius: roundedRadius - lowerFacetInset,
-      segments,
-    });
-
-    const bottomSlice = slice.fromSides(geom2.toSides(bottomFootprint));
-    const fullSlice = slice.fromSides(geom2.toSides(fullFootprint));
-    const atZ = (profileSlice, z) =>
-      slice.transform(
-        mat4.fromTranslation(mat4.create(), [0, 0, z]),
-        profileSlice,
-      );
-
-    return extrudeFromSlices(
-      {
-        numberOfSlices: 4,
-        callback: (_progress, index) => {
-          if (index === 0) return atZ(bottomSlice, bottomZ);
-          if (index === 1) return atZ(fullSlice, facetTopZ);
-          if (index === 2) return atZ(fullSlice, topFacetBottomZ);
-          return atZ(bottomSlice, topZ);
-        },
-      },
-      bottomSlice,
-    );
   }
 
   function fullBody() {
@@ -445,6 +414,7 @@ module.exports.main = () => {
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBody());
   // return printAllChecks(); 
-  // return m14MastAdapter();
+  // return m14MastAdapter();*
+  // return lowerBody();
   return printable();
 };
