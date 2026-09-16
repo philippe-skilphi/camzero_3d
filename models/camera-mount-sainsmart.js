@@ -19,7 +19,7 @@ function cameraMount({ zOffset = 0 } = {}) {
         cuboid({ size: [5, 36, innerHeight] }),
         translate(
           [0, 0, zOffset],
-          rotate([0, Math.PI / 2, 0], cylinder({ radius: 9, height: 10 })),
+          rotate([0, Math.PI / 2, 0], cylinder({ radius: 8, height: 10 })),
         ),
         translate(
           [-3, width / 2, height / 2 + zOffset],
@@ -49,7 +49,7 @@ function cameraMount({ zOffset = 0 } = {}) {
             cylinder({ radius: 2, height: 10 }),
           ),
         ),
-        translate([0, 0, innerHeight / 2], cuboid({ size: [6, 36, 5] })),
+        translate([0, 0, innerHeight / 2], cuboid({ size: [6, 34, 4] })),
         rotate([Math.PI / 4, 0, 0], translate([0, 5, 5 + innerHeight / 2], cuboid({ size: [6, 36, 6] }))),
         rotate([-Math.PI / 4, 0, 0], translate([0, -5, 5+ innerHeight / 2], cuboid({ size: [6, 36, 6] }))),
       ),
