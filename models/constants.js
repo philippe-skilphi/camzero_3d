@@ -57,6 +57,9 @@ const outerLength = innerLength + 2 * wallThickness;
 const outerWidth = innerWidth + 2 * wallThickness;
 const outerHeight = innerHeight + 2 * wallThickness;
 const facetTopZ = -outerHeight / 2 + lowerFacetHeight;
+// Preserve the historical split and seal height without depending on the
+// dimensions of the removed exterior fasteners.
+const caseSeparationOffset = 10.25;
 
 const centeredWidth = (outerWidth + innerWidth) / 2;
 const centeredLength = (outerLength + innerLength) / 2;
@@ -89,7 +92,6 @@ const modelLayouts = {
     bottomScrewMount: { x: 6, y: 12 },
     raspberryPi: { x: -17, y: 10 },
     usbHole: { x: -36, y: -15 },
-    caseScrewX: [-0.2 * outerLength, 16.25],
     frontSeamDip: 2,
     cameraCapTranslate: [10, 0, 3],
     capScrewX: [19, -11],
@@ -100,11 +102,10 @@ const modelLayouts = {
   sainsmart: {
     sp13: { x: 28, y: -16 },
     hasPowerConverter: true,
-    powerConverter: { x: -4, y: -17 },
-    bottomScrewMount: { x: 26, y: 18 },
-    raspberryPi: { x: -16, y: 10 },
-    usbHole: { x: -35, y: -16 },
-    caseScrewX: [-15, 40],
+    powerConverter: { x: -4, y: -15 },
+    bottomScrewMount: { x: 30, y: 20 },
+    raspberryPi: { x: -16, y: 6 },
+    usbHole: { x: -31, y: -16 },
     frontSeamDip: 4.25,
     cameraCapTranslate: [2, 0, 3],
     capScrewX: [20, -25],
@@ -140,6 +141,7 @@ module.exports = {
   outerWidth,
   outerHeight,
   facetTopZ,
+  caseSeparationOffset,
   centeredWidth,
   centeredLength,
   centeredHeight,

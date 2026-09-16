@@ -7,6 +7,7 @@ const {
   booleans: { subtract },
 } = require("@jscad/modeling");
 const {
+  caseSeparationOffset,
   facetTopZ,
   frontSeamCurveWidth,
   layout,
@@ -15,9 +16,6 @@ const {
   roundedRadius,
   innerWidth,
 } = require("./constants");
-const {
-  screwHoleHalfCircularWithSupportHeight,
-} = require("./screwery");
 
 function Hexagon(diameter, height) {
   const radius = diameter / 2;
@@ -59,7 +57,7 @@ function getVec2RoundedPoints(center, radius, startAngle, endAngle) {
 }
 
 function caseSeparationZ() {
-  return facetTopZ + screwHoleHalfCircularWithSupportHeight();
+  return facetTopZ + caseSeparationOffset;
 }
 
 function frontSeamDipAtY(y) {

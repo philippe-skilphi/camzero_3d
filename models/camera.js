@@ -15,10 +15,14 @@ const { cameraHole35mm } = require("./camera-hole");
 const {
   screwMount1_4,
   screwMount1_4Body,
-  screwHoleHalfCircularWithSupport,
-  screwMountHalfCircularWithSupport,
   screwMountM2_5,
 } = require("./screwery");
+const {
+  lowerBodyCaseScrewHoles,
+  lowerBodyCaseScrewHousings,
+  upperBodyCaseScrewMountClearances,
+  upperBodyCaseScrewMounts,
+} = require("./case-fasteners");
 
 const {
   Hexagon,
@@ -99,27 +103,6 @@ module.exports.main = () => {
     return subtract(outerCuboid, innerCuboid);
   }
 
-  /**
-   * @param {() => import("@jscad/modeling/src/geometries/types").Geom3} createFastener
-   * @param {number} z
-   * @returns {import("@jscad/modeling/src/geometries/types").Geom3}
-   */
-  function sideCaseFasteners(createFastener, z) {
-    /** @type {import("@jscad/modeling/src/geometries/types").Geom3[]} */
-    const fasteners = layout.caseScrewX.flatMap((x) =>
-      [1, -1].map((ySign) =>
-        translate(
-          [x, (ySign * outerWidth) / 2, z],
-          rotate(
-            [Math.PI, 0, (ySign * Math.PI) / 2],
-            createFastener(),
-          ),
-        ),
-      ),
-    );
-    return union(fasteners);
-  }
-
   function cameraCutout() {
     return translate(
       [centeredLength / 2, 0, cameraVerticalOffset],
@@ -162,8 +145,7 @@ module.exports.main = () => {
   }
 
   function lowerBodyWithJoint() {
-    let body = subtract(lowerBody(), trapezoidalRopeTrap());
-    // let body = union(lowerBody(), trapezoidalRopeTrap());
+    let body = lowerBody();
 
     // SP13 bottom hole.
     // I kept Sp13 vars
@@ -269,26 +251,18 @@ module.exports.main = () => {
     body = union(body, sensorScrewMount);
 
 
-    // Case screws on sides
-    const caseScrewMounts = sideCaseFasteners(
-      screwHoleHalfCircularWithSupport,
-      caseSeparationZ(),
-    );
-
-    // One case screw on the back side
-    const backCaseScrewMount = translate(
-      [-outerLength / 2, 0, caseSeparationZ()],
-      rotate([Math.PI, 0, Math.PI], screwHoleHalfCircularWithSupport()),
-    );
-    body = union(body, backCaseScrewMount);
-
     // ADS1115 and RTC mounts
     // const ads1115AndRtcMounts = translate(
     //   [layout.additionalCardsMount.x, layout.additionalCardsMount.y, -innerHeight / 2],
     //   additionalCardsMount(),
     // );
 
-    return union(body, caseScrewMounts);
+    body = union(body, lowerBodyCaseScrewHousings());
+    return subtract(
+      body,
+      lowerBodyCaseScrewHoles(),
+      trapezoidalRopeTrap(),
+    );
   }
 
   function upperBodyWithCap() {
@@ -301,19 +275,6 @@ module.exports.main = () => {
   function upperBody() {
     let body = subtract(fullBody(), lowerBody());
     body = subtract(body, cameraCutout());
-
-    // One case screw on the back side
-    const backCaseScrewMount = translate(
-      [-outerLength / 2, 0, caseSeparationZ() + 6.2],
-      rotate([Math.PI, 0, Math.PI], screwMountHalfCircularWithSupport()),
-    );
-    body = union(body, backCaseScrewMount);
-
-    // Case screw mounts on the top side, face down to limit water ingress.
-    const caseScrewMounts = sideCaseFasteners(
-      screwMountHalfCircularWithSupport,
-      caseSeparationZ() + 6.2,
-    );
 
     // We need to add 2 M2.5 screw mounts  on each side to support the cap.
     // We also need to provide 45° edge support for 3d printing convenience.
@@ -353,7 +314,8 @@ module.exports.main = () => {
     )
     body = union(body, thermalReliefs);
 
-    return union(body, caseScrewMounts, capScrewMounts);
+    body = subtract(body, upperBodyCaseScrewMountClearances());
+    return union(body, upperBodyCaseScrewMounts(), capScrewMounts);
   }
 
   function printable() {
@@ -416,5 +378,5 @@ module.exports.main = () => {
   // return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
-  // return printable();
+  return printable();
 };
