@@ -10,7 +10,7 @@ const { subtract } = require("@jscad/modeling/src/operations/booleans");
 
 function cameraMount({ zOffset = 0 } = {}) {
   const width = 21;
-  const height = 15;
+  const height = 14;
 
   const body = translate(
     [innerLength / 2 - wallThickness, 0, 0],
