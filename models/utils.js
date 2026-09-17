@@ -9,8 +9,6 @@ const {
 const {
   caseSeparationOffset,
   facetTopZ,
-  frontSeamCurveWidth,
-  layout,
   outerHeight,
   segments,
   roundedRadius,
@@ -60,39 +58,6 @@ function caseSeparationZ() {
   return facetTopZ + caseSeparationOffset;
 }
 
-function frontSeamDipAtY(y) {
-  const halfWidth = frontSeamCurveWidth / 2;
-  if (Math.abs(y) >= halfWidth) return 0;
-  return (
-    (layout.frontSeamDip / 2) *
-    (1 + Math.cos((2 * Math.PI * y) / frontSeamCurveWidth))
-  );
-}
-
-function frontSeamZAtY(y) {
-  return caseSeparationZ() - frontSeamDipAtY(y);
-}
-
-function frontSeamSlopeAtY(y) {
-  const halfWidth = frontSeamCurveWidth / 2;
-  if (Math.abs(y) >= halfWidth) return 0;
-  return (
-    (layout.frontSeamDip * Math.PI) /
-    frontSeamCurveWidth *
-    Math.sin((2 * Math.PI * y) / frontSeamCurveWidth)
-  );
-}
-
-function getFrontSeamCurvePoints(segmentCount = Math.max(12, segments)) {
-  const halfWidth = frontSeamCurveWidth / 2;
-  const points = [];
-  for (let index = 0; index <= segmentCount; index++) {
-    const y = -halfWidth + (frontSeamCurveWidth * index) / segmentCount;
-    points.push([y, frontSeamZAtY(y)]);
-  }
-  return points;
-}
-
 function thermalReliefShape() {
   const thermalReliefShape = roundedRectangle({ size: [innerWidth, 20], roundRadius: roundedRadius });
   // const toRemove = rectangle({ size: [innerWidth, 14], center: [0, 5] });
@@ -105,10 +70,6 @@ function thermalReliefShape() {
 module.exports = {
   getVec2RoundedPoints,
   caseSeparationZ,
-  frontSeamDipAtY,
-  frontSeamZAtY,
-  frontSeamSlopeAtY,
-  getFrontSeamCurvePoints,
   Hexagon,
   lowerBodyOuterHeight,
   getSizes,

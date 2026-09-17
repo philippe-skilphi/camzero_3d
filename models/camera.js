@@ -1,11 +1,8 @@
 const {
-  primitives: { roundedCuboid, cylinder, cuboid, torus, rectangle },
+  primitives: { roundedCuboid, cylinder, cuboid, torus },
   booleans: { subtract, union },
-  transforms: { translate, rotate, center, transform },
+  transforms: { translate, rotate, center },
   measurements: { measureArea, measureBoundingBox },
-  geometries: { geom2 },
-  maths: { mat4, vec2 },
-  extrusions: { extrudeLinear },
 } = require("@jscad/modeling");
 
 const { ropeJoint, ropeJointAngle } = require("./rope");
@@ -27,7 +24,6 @@ const {
 const {
   Hexagon,
   caseSeparationZ,
-  getFrontSeamCurvePoints,
   thermalReliefShape,
 } = require("./utils");
 
@@ -56,7 +52,6 @@ const {
   innerLength,
   innerWidth,
   innerHeight,
-  wallThickness,
   roundedRadius,
   lowerFacetHeight,
   lowerFacetInset,
@@ -118,30 +113,7 @@ module.exports.main = () => {
       center: [0, 0, separationZ + (upperHeight + 2) / 2],
     });
 
-    const frontCurve = getFrontSeamCurvePoints();
-    const frontNotch2D = geom2.fromPoints(
-      [
-        ...frontCurve,
-        [frontCurve[frontCurve.length - 1][0], separationZ + 1],
-        [frontCurve[0][0], separationZ + 1],
-      ].map((point) => vec2.fromValues(point[0], point[1])),
-    );
-
-    const frontNotchDepth = wallThickness + 2;
-    const frontNotch = transform(
-      mat4.fromValues(
-        0, 1, 0, 0,
-        0, 0, 1, 0,
-        1, 0, 0, 0,
-        innerLength / 2 - 1, 0, 0, 1,
-      ),
-      extrudeLinear({ height: frontNotchDepth }, frontNotch2D),
-    );
-
-    return subtract(
-      subtract(fullBody(), upperHalfSpace),
-      frontNotch,
-    );
+    return subtract(fullBody(), upperHalfSpace);
   }
 
   function lowerBodyWithJoint() {
@@ -375,8 +347,8 @@ module.exports.main = () => {
   // return translate([0,0, 40], lowerBodyWithJoint())
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBody());
-  // return printAllChecks(); 
+  return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
-  return printable();
+  // return printable();
 };

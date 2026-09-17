@@ -1,6 +1,6 @@
 const {
   geometries: { geom2 },
-  extrusions: { extrudeFromSlices, extrudeLinear, extrudeRotate, slice },
+  extrusions: { extrudeLinear, extrudeRotate },
   maths: { vec2, vec3, mat4 },
   transforms: { translate, transform },
   booleans: { union },
@@ -10,14 +10,11 @@ const {
   segments,
   centeredWidth,
   centeredLength,
-  frontSeamCurveWidth,
   wallThickness,
   roundedRadius,
 } = require("./constants");
 const {
   caseSeparationZ,
-  frontSeamSlopeAtY,
-  getFrontSeamCurvePoints,
   getVec2RoundedPoints,
 } = require("./utils");
 
@@ -196,31 +193,6 @@ function placeOriented(geom, origin, tangent, normal) {
 }
 
 /**
- * Sweep the trapezoidal profile along the front seam as one lofted solid.
- * Chord-by-chord right prisms leave miter wedges at every polyline vertex;
- * those become hairline walls after subtract. Lofted slices stay watertight.
- */
-function frontSeamCurveTrap(xExtent) {
-  const curvePoints = getFrontSeamCurvePoints();
-  const base = slice.fromSides(geom2.toSides(trapezoidal2D(FACE_OVERSHOOT)));
-
-  return extrudeFromSlices(
-    {
-      numberOfSlices: curvePoints.length,
-      callback: (_progress, index, baseSlice) => {
-        const [y, z] = curvePoints[index];
-        const slope = frontSeamSlopeAtY(y);
-        return slice.transform(
-          orientedMatrix([xExtent, y, z], [0, 1, slope], [0, -slope, 1]),
-          baseSlice,
-        );
-      },
-    },
-    base,
-  );
-}
-
-/**
  * Axial 90° (or other) corner, sweeping CW around +normal when viewed along the face normal.
  * `startDir` = radial from corner center to the path at the start of the arc.
  *
@@ -255,8 +227,7 @@ function placeAxialCornerCW(bendRadius, angle, origin, normal, startDir) {
 }
 
 /**
- * Closed-loop trapezoidal rope trap on the low horizontal mating face.
- * The front connector follows the same smooth dip as the body split.
+ * Closed-loop trapezoidal rope trap on the flat mating face.
  * Positive cutter — subtract from lowerBody only.
  * @returns {import("@jscad/modeling/src/geometries/types").Geom3}
  */
@@ -268,15 +239,13 @@ function trapezoidalRopeTrap() {
   const cornerRadius = LOOP_CORNER_RADIUS;
   const xCorner = xExtent - cornerRadius;
   const yCorner = yExtent - cornerRadius;
-  const curveHalfWidth = frontSeamCurveWidth / 2;
   const sideLength = 2 * xCorner;
   const rearLength = 2 * yCorner;
-  const frontStraightLength = yCorner - curveHalfWidth;
   const segment = (length) =>
     trapezoidalSegment(length, { overshoot: FACE_OVERSHOOT });
 
   const parts = [
-    // Horizontal side and rear runs.
+    // Horizontal side, rear, and front runs.
     placeOriented(
       segment(sideLength),
       [-xCorner, yExtent, separationZ],
@@ -295,16 +264,9 @@ function trapezoidalRopeTrap() {
       [0, 1, 0],
       normal,
     ),
-    // Short front runs connect the plan-view corners to the curved section.
     placeOriented(
-      segment(frontStraightLength),
+      segment(rearLength),
       [xExtent, -yCorner, separationZ],
-      [0, 1, 0],
-      normal,
-    ),
-    placeOriented(
-      segment(frontStraightLength),
-      [xExtent, curveHalfWidth, separationZ],
       [0, 1, 0],
       normal,
     ),
@@ -337,7 +299,6 @@ function trapezoidalRopeTrap() {
       normal,
       [0, -1, 0],
     ),
-    frontSeamCurveTrap(xExtent),
   ];
 
   return union(...parts);
