@@ -65,7 +65,9 @@ const ropeDimensions = { centeredLength, centeredWidth, centeredHeight };
 
 const capDistanceToBody = 4;
 const capThickness = 3;
-const capFrontOverflow = 10;
+const capRearClearance = 1;
+const capRearVerticalClearance = -10;
+const capFrontOverflow = 25;
 const capBackOverflow = 10;
 
 const cameraCapTopLength = outerLength + capFrontOverflow + capBackOverflow;
@@ -153,6 +155,8 @@ module.exports = {
   cameraCapInnerWidth,
   capThickness,
   capDistanceToBody,
+  capRearClearance,
+  capRearVerticalClearance,
   usbPortLength,
   usbPortWidth,
   usbEnclosureHeight,

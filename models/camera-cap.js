@@ -9,7 +9,6 @@ const { screwHole } = require("./screwery");
 const {
   layout,
   cameraCapTopLength,
-  cameraCapBottomLength,
   cameraCapHeight,
   outerLength,
   outerWidth,
@@ -22,13 +21,29 @@ const {
   capThickness,
   cameraCapOuterWidth,
   cameraCapInnerWidth,
+  capRearClearance,
+  capRearVerticalClearance,
 } = require("./constants");
 const { facetedRoundedCuboid } = require("./faceted-rounded-cuboid");
 
 function cameraCap() {
+  const booleanOverlap = 0.5;
+  const capShellTop = cameraCapHeight - capThickness / 2;
+  const caseRearX = -outerLength / 2 - layout.cameraCapTranslate[0];
+  const rearWallInnerX = caseRearX - capRearClearance;
+  const rearWallOuterX = rearWallInnerX - capThickness;
+  const rearWallBottomZ =
+    outerHeight / 2 -
+    layout.cameraCapTranslate[2] +
+    capRearVerticalClearance;
+  const rearWallHeight = capShellTop- rearWallBottomZ;
 
   let body = facetedRoundedCuboid({
-    size: [cameraCapTopLength, cameraCapOuterWidth, cameraCapHeight - 3],
+    size: [
+      cameraCapTopLength,
+      cameraCapOuterWidth,
+      cameraCapHeight - capThickness,
+    ],
     center: [0, 0, cameraCapHeight / 2],
     roundRadius: roundedRadius,
     facetHeight: lowerFacetHeight,
@@ -63,10 +78,11 @@ function cameraCap() {
     ],
   });
 
+  const cutBackDepth = cameraCapTopLength;
   const cutBackBody = cuboid({
-    size: [10, cameraCapOuterWidth, cameraCapHeight],
+    size: [cutBackDepth, cameraCapOuterWidth, cameraCapHeight],
     center: [
-      -cameraCapBottomLength / 2 - layout.cutFrontBodyOffset -5,
+      rearWallOuterX - cutBackDepth / 2,
       0,
       cameraCapHeight / 2,
     ],
@@ -75,6 +91,20 @@ function cameraCap() {
   body = subtract(body, cutAngleBody,);
   body = subtract(body, cutFrontBody);
   body = subtract(body, cutBackBody);
+
+  const rearWall = cuboid({
+    size: [
+      capThickness,
+      cameraCapInnerWidth + 2 * booleanOverlap,
+      rearWallHeight,
+    ],
+    center: [
+      (rearWallInnerX + rearWallOuterX) / 2,
+      0,
+      rearWallBottomZ + rearWallHeight / 2,
+    ],
+  });
+  body = union(body, rearWall);
 
   // Add 4 M2.5 screw holes on the bottom side to support the cap.
   const capScrewMounts = union(
