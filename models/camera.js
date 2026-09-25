@@ -347,8 +347,8 @@ module.exports.main = () => {
   // return translate([0,0, 40], lowerBodyWithJoint())
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBody());
-  return printAllChecks(); 
+  // return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
-  // return printable();
+  return printable();
 };
