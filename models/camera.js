@@ -13,6 +13,9 @@ const {
   screwMount1_4,
   screwMount1_4Body,
   screwMountM2_5,
+  screwHoleHalfCircularWithSupport,
+  screwMountHalfCircularWithSupport,
+  capScrewMountWithSupport,
 } = require("./screwery");
 const {
   lowerBodyCaseScrewHoles,
@@ -254,22 +257,41 @@ module.exports.main = () => {
     // Because we will print that piece upside down.....
 
     const [capScrewXPos, capScrewXNeg] = layout.capScrewX;
+    // const capScrewMounts = union(
+    //   translate(
+    //     [capScrewXPos, outerWidth / 2, outerHeight / 4],
+    //     rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
+    //   ),
+    //   translate(
+    //     [capScrewXNeg, outerWidth / 2, outerHeight / 4],
+    //     rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
+    //   ),
+    //   translate(
+    //     [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
+    //     rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
+    //   ),
+    //   translate(
+    //     [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
+    //     rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
+    //   ),
+    // );
+
     const capScrewMounts = union(
       translate(
         [capScrewXPos, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
+        rotate([Math.PI / 2, 0, Math.PI], capScrewMountWithSupport()),
       ),
       translate(
         [capScrewXNeg, outerWidth / 2, outerHeight / 4],
-        rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
+        rotate([Math.PI / 2, 0, Math.PI], capScrewMountWithSupport()),
       ),
       translate(
         [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
+        rotate([Math.PI / 2, 0, 0], capScrewMountWithSupport()),
       ),
       translate(
         [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
-        rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
+        rotate([Math.PI / 2, 0, 0], capScrewMountWithSupport()),
       ),
     );
 
@@ -344,11 +366,31 @@ module.exports.main = () => {
     );
   }
 
+  function fullBodyWithJoint() {
+    // Add the bottle cap to the inner screw located on the lower body
+    const lower = lowerBodyWithJoint();
+    const lowerWithBottleCap = union(
+      lower,
+      // Place the bottle cap at the same position as the inner screw in the lower body
+      // (Assume the inner screw is centered at [0, 0, 0] relative to lowerBodyWithJoint)
+      translate([layout.usbHole.x, layout.usbHole.y, -outerHeight + innerCylinderHeight()], bottleCap({
+        majorRadius: usbHoleScrewOuterRadius - 0.4,
+        flangeRadius: 15,
+        innerBoreRadius: usbHoleScrewOuterRadius - 3,
+      }))
+    );
+    return union(
+      lowerWithBottleCap,
+      upperBodyWithCap(),
+    );
+  }
+
   // return translate([0,0, 40], lowerBodyWithJoint())
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBody());
   // return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
+  // return fullBodyWithJoint();
   return printable();
 };
