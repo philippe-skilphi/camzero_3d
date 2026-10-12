@@ -216,9 +216,22 @@ module.exports.main = () => {
         }),
       ),
     );
-    body = subtract(body, usbHole);
 
-    // Camera sensor screw mount stays attached to the lower body.
+    const ledHole =translate(
+      [usbHoleX - 4, usbHoleY - 9, -outerHeight / 2 + innerCylinderHeight()],
+      rotate(
+        [0, 0, 0],
+        cylinder({
+          radius: 1.6,
+          height: 10,
+          segments,
+        }),
+      ),
+    );
+    // body = union(body, ledHole);
+    body = subtract(body, usbHole, ledHole);
+
+    // Camera sensor screw mount stays attached to the lower body. 
     const sensorScrewMount = cameraMount({
       ...(layout.cameraMountCall || {}),
       zOffset: cameraVerticalOffset,
@@ -257,25 +270,6 @@ module.exports.main = () => {
     // Because we will print that piece upside down.....
 
     const [capScrewXPos, capScrewXNeg] = layout.capScrewX;
-    // const capScrewMounts = union(
-    //   translate(
-    //     [capScrewXPos, outerWidth / 2, outerHeight / 4],
-    //     rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
-    //   ),
-    //   translate(
-    //     [capScrewXNeg, outerWidth / 2, outerHeight / 4],
-    //     rotate([Math.PI / 2, 0, Math.PI], screwMountM2_5({additionalHeight: 0})),
-    //   ),
-    //   translate(
-    //     [capScrewXPos, -(outerWidth / 2), outerHeight / 4],
-    //     rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
-    //   ),
-    //   translate(
-    //     [capScrewXNeg, -(outerWidth / 2), outerHeight / 4],
-    //     rotate([Math.PI / 2, 0, 0], screwMountM2_5({additionalHeight: 0})),
-    //   ),
-    // );
-
     const capScrewMounts = union(
       translate(
         [capScrewXPos, outerWidth / 2, outerHeight / 4],
@@ -388,7 +382,7 @@ module.exports.main = () => {
   // return translate([0,0, 40], lowerBodyWithJoint())
   // return translate([0, 70, 10], thread2Parts())
   // return translate([0, 0, 50], upperBody());
-  // return printAllChecks(); 
+  //  return printAllChecks(); 
   // return m14MastAdapter();*
   // return lowerBody();
   // return fullBodyWithJoint();
