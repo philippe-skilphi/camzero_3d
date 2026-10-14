@@ -218,7 +218,7 @@ module.exports.main = () => {
     );
 
     const ledHole =translate(
-      [usbHoleX - 4, usbHoleY - 9, -outerHeight / 2 + innerCylinderHeight()],
+      [usbHoleX, usbHoleY - 9, -outerHeight / 2 + innerCylinderHeight()],
       rotate(
         [0, 0, 0],
         cylinder({
