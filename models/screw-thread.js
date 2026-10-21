@@ -18,7 +18,7 @@ const DEFAULTS = {
   flank: 0.25,
   clearance: 0.2,
   segmentsPerRotation: threadSegmentsPerRotation,
-  flangeHeight: 14,
+  flangeHeight: 8,
   flangeRadius: 11,
   wall: 2,
   topThickness: 2,

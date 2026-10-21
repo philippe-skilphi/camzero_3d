@@ -274,7 +274,7 @@ function screwMountHalfCircularBody({
 
 function screwMountM2(additionalHeight) {
   return screwMount({
-    radius: 1.6,
+    radius: 1.8,
     height: 3,
     thickness: 2,
     additionalHeight: additionalHeight ?? 1,
@@ -304,7 +304,7 @@ function screwMountM3(additionalHeight, thickness) {
 
 function screwMountM3Body(additionalHeight, thickness) {
   return screwMountBody({
-    radius: 1.9,
+    radius: 2.1,
     height: 5,
     thickness: thickness ?? 1,
     additionalHeight: additionalHeight ?? 1,
