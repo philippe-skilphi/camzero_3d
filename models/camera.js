@@ -322,8 +322,7 @@ module.exports.main = () => {
       translate(
         [-50, 0, cameraCapHeight - 1],
         rotate([0, Math.PI, Math.PI], cameraCap()),
-      ),
-      translate([50, 20, 0], m14MastAdapter()),
+      )
     );
   }
 
